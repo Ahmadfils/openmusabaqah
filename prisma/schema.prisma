@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  description  String?
+  participants Participant[]
+  questions    Question[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Question {
+  id             String    @id @default(cuid())
+  number         Int       // The selection number (1-30 typically)
+  surah          String
+  surahArabic    String?   // Arabic name for the surah
+  surahNumber    Int
+  startAyah      Int?      // Starting ayah for the question
+  endAyah        Int?      // Ending ayah for the question
+  topic          String?
+  difficulty     String    @default("medium") // easy, medium, hard
+  questionText   String
+  answerText     String?
+  points         Int       @default(10)
+  isUsed         Boolean   @default(false)
+  
+  groupId        String
+  group          Group     @relation(fields: [groupId], references: [id])
+  
+  selection      Selection?
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([groupId, number])
+}
+
+model Participant {
+  id           String    @id @default(cuid())
+  name         String
+  identifier   String?   @unique // e.g., seat number or registration ID
+  
+  groupId      String
+  group          Group     @relation(fields: [groupId], references: [id])
+  
+  selection    Selection?
+  score        Score?
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Selection {
+  id            String      @id @default(cuid())
+  participantId String      @unique
+  participant   Participant @relation(fields: [participantId], references: [id])
+  
+  questionId    String      @unique
+  question      Question    @relation(fields: [questionId], references: [id])
+  
+  selectedAt    DateTime    @default(now())
+}
+
+model Score {
+  id            String      @id @default(cuid())
+  participantId String      @unique
+  participant   Participant @relation(fields: [participantId], references: [id])
+  
+  points        Int         @default(0)
+  notes         String?
+  judgeName     String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model SystemState {
+  id                   String  @id @default("default")
+  currentGroupId       String?
+  currentParticipantId String?
+  currentQuestionId    String?
+  updatedAt            DateTime @updatedAt
+}

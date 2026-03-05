@@ -1,0 +1,111 @@
+-- CreateTable
+CREATE TABLE "Group" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Group_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Question" (
+    "id" TEXT NOT NULL,
+    "number" INTEGER NOT NULL,
+    "surah" TEXT NOT NULL,
+    "surahArabic" TEXT,
+    "surahNumber" INTEGER NOT NULL,
+    "startAyah" INTEGER,
+    "endAyah" INTEGER,
+    "topic" TEXT,
+    "difficulty" TEXT NOT NULL DEFAULT 'medium',
+    "questionText" TEXT NOT NULL,
+    "answerText" TEXT,
+    "points" INTEGER NOT NULL DEFAULT 10,
+    "isUsed" BOOLEAN NOT NULL DEFAULT false,
+    "groupId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Participant" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "identifier" TEXT,
+    "groupId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Participant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Selection" (
+    "id" TEXT NOT NULL,
+    "participantId" TEXT NOT NULL,
+    "questionId" TEXT NOT NULL,
+    "selectedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Selection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Score" (
+    "id" TEXT NOT NULL,
+    "participantId" TEXT NOT NULL,
+    "points" INTEGER NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "judgeName" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Score_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SystemState" (
+    "id" TEXT NOT NULL DEFAULT 'default',
+    "currentGroupId" TEXT,
+    "currentParticipantId" TEXT,
+    "currentQuestionId" TEXT,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SystemState_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Group_name_key" ON "Group"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Question_groupId_number_key" ON "Question"("groupId", "number");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Participant_identifier_key" ON "Participant"("identifier");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Selection_participantId_key" ON "Selection"("participantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Selection_questionId_key" ON "Selection"("questionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Score_participantId_key" ON "Score"("participantId");
+
+-- AddForeignKey
+ALTER TABLE "Question" ADD CONSTRAINT "Question_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Participant" ADD CONSTRAINT "Participant_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Selection" ADD CONSTRAINT "Selection_participantId_fkey" FOREIGN KEY ("participantId") REFERENCES "Participant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Selection" ADD CONSTRAINT "Selection_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Score" ADD CONSTRAINT "Score_participantId_fkey" FOREIGN KEY ("participantId") REFERENCES "Participant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,0 +1,103 @@
+/**
+ * In-memory data store with file persistence for the competition.
+ * Resets on server restart unless persisted to disk.
+ */
+
+export interface Question {
+    id: number;
+    surah: string;
+    surahNumber: number;
+    topic: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    question: string;
+    answer: string;
+    points: number;
+}
+
+export interface Participant {
+    id: string;
+    name: string;
+    number: number; // participant seat/competition number
+}
+
+export interface JudgeNote {
+    participantId: string;
+    notes: string;
+    score: number;
+    timestamp: string;
+}
+
+export interface SelectedQuestion {
+    participantId: string;
+    participantName: string;
+    questionNumber: number;
+    question: Question;
+    selectedAt: string;
+}
+
+export interface CompetitionState {
+    participants: Participant[];
+    usedNumbers: number[];          // question numbers already selected
+    currentSelection: SelectedQuestion | null;
+    judgeNotes: Record<string, JudgeNote>; // keyed by participantId
+    sessionActive: boolean;
+}
+
+// --- Quran Questions Pool (30 questions) ---
+export const QUESTIONS: Question[] = [
+    { id: 1, surah: 'Al-Fatiha', surahNumber: 1, topic: 'Opening Chapter', difficulty: 'easy', question: 'How many verses are in Surah Al-Fatiha?', answer: '7 verses', points: 10 },
+    { id: 2, surah: 'Al-Baqarah', surahNumber: 2, topic: 'Longest Surah', difficulty: 'medium', question: 'What is the longest surah in the Quran and how many verses does it contain?', answer: 'Al-Baqarah with 286 verses', points: 15 },
+    { id: 3, surah: 'Al-Imran', surahNumber: 3, topic: 'Family of Imran', difficulty: 'medium', question: 'Who is Imran mentioned in Surah Al-Imran?', answer: 'Father of Maryam (Mary), mother of Prophet Isa (Jesus)', points: 15 },
+    { id: 4, surah: 'Al-Kawthar', surahNumber: 108, topic: 'Shortest Surah', difficulty: 'easy', question: 'What is the shortest surah in the Quran?', answer: 'Surah Al-Kawthar with 3 verses', points: 10 },
+    { id: 5, surah: 'Al-Ikhlas', surahNumber: 112, topic: 'Sincerity', difficulty: 'easy', question: 'What does "Samad" mean in Surah Al-Ikhlas?', answer: 'The Eternal, the Absolute – the one upon whom all depend', points: 10 },
+    { id: 6, surah: 'Yasin', surahNumber: 36, topic: 'Heart of Quran', difficulty: 'medium', question: 'Why is Surah Yasin called the heart of the Quran?', answer: 'Because it contains the core themes: resurrection, prophethood, tawhid', points: 20 },
+    { id: 7, surah: 'Al-Kahf', surahNumber: 18, topic: 'Cave', difficulty: 'hard', question: 'How long did the People of the Cave sleep according to the Quran?', answer: '309 years (300 solar, 309 lunar)', points: 25 },
+    { id: 8, surah: 'Al-Mulk', surahNumber: 67, topic: 'Sovereignty', difficulty: 'medium', question: 'What is the virtue of reciting Surah Al-Mulk regularly?', answer: 'It intercedes for its reciter and protects from the punishment of the grave', points: 15 },
+    { id: 9, surah: 'Al-Rahman', surahNumber: 55, topic: 'The Merciful', difficulty: 'easy', question: 'How many times is "Fabi ayyi ala i rabbikuma tukadhdhibaan" repeated in Surah Al-Rahman?', answer: '31 times', points: 20 },
+    { id: 10, surah: 'Al-Baqarah', surahNumber: 2, topic: 'Ayat Al-Kursi', difficulty: 'medium', question: 'What is the verse number of Ayat Al-Kursi in Surah Al-Baqarah?', answer: 'Verse 255', points: 15 },
+    { id: 11, surah: 'An-Nisa', surahNumber: 4, topic: 'Women', difficulty: 'hard', question: 'What is the ruling on Nikah Mutah according to majority scholars and what verse discusses marriage?', answer: 'Prohibited; Verse 24 of An-Nisa discusses temporary marriage', points: 25 },
+    { id: 12, surah: 'Al-Maidah', surahNumber: 5, topic: 'Table Spread', difficulty: 'medium', question: 'Which prophet asked Allah to send down a table spread from heaven?', answer: 'Prophet Isa (Jesus)', points: 15 },
+    { id: 13, surah: 'Al-Anam', surahNumber: 6, topic: 'Cattle', difficulty: 'hard', question: 'Name the six articles of faith mentioned in Surah Al-Anam verse 82.', answer: 'Those who believe and do not mix their faith with injustice – this discusses purity of faith', points: 25 },
+    { id: 14, surah: 'Al-Anfal', surahNumber: 8, topic: 'Spoils of War', difficulty: 'medium', question: 'Which battle gave the name to Surah Al-Anfal?', answer: 'Battle of Badr (Ghazwa Badr)', points: 20 },
+    { id: 15, surah: 'At-Tawbah', surahNumber: 9, topic: 'Repentance', difficulty: 'hard', question: 'Why is Surah At-Tawbah the only surah without Bismillah at the beginning?', answer: 'Scholars say it is due to its stern and serious nature of warning the disbelievers', points: 25 },
+    { id: 16, surah: 'Yunus', surahNumber: 10, topic: 'Prophet Yunus', difficulty: 'medium', question: 'What supplication did Prophet Yunus make inside the whale?', answer: 'Subhanaka inni kuntu min az-zalimin (Glory be to You, I was among the wrongdoers)', points: 20 },
+    { id: 17, surah: 'Yusuf', surahNumber: 12, topic: 'Best of Stories', difficulty: 'easy', question: 'The Quran refers to Surat Yusuf as what?', answer: 'Ahsan al-Qasas – "The Best of Stories"', points: 15 },
+    { id: 18, surah: 'Ibrahim', surahNumber: 14, topic: 'Prophet Ibrahim', difficulty: 'medium', question: 'What does Prophet Ibrahim pray for his family in Surah Ibrahim?', answer: 'For them to establish prayer, be kept away from idol worship, and live near the Sacred House', points: 20 },
+    { id: 19, surah: 'Al-Isra', surahNumber: 17, topic: 'Night Journey', difficulty: 'hard', question: 'What major event does the first verse of Surah Al-Isra describe?', answer: 'The Night Journey (Isra) of the Prophet from Al-Masjid Al-Haram to Al-Masjid Al-Aqsa', points: 25 },
+    { id: 20, surah: 'Al-Hajj', surahNumber: 22, topic: 'Pilgrimage', difficulty: 'medium', question: 'What does this verse command: "Wa azzin fi an-nasi bil-hajje"?', answer: 'To announce the Hajj pilgrimage to all people', points: 20 },
+    { id: 21, surah: 'An-Nur', surahNumber: 24, topic: 'Light', difficulty: 'hard', question: 'Describe the famous Light Verse (Ayat An-Nur) metaphor in Surah An-Nur verse 35.', answer: "Allah's light is like a niche with a lamp in glass like a brilliant star, lit from a blessed olive tree", points: 30 },
+    { id: 22, surah: 'Al-Furqan', surahNumber: 25, topic: 'Criterion', difficulty: 'medium', question: 'What does "Furqan" mean and what is it referring to in this surah?', answer: 'The Criterion / Distinguisher – referring to the Quran distinguishing truth from falsehood', points: 15 },
+    { id: 23, surah: 'Luqman', surahNumber: 31, topic: 'Wisdom', difficulty: 'easy', question: 'Name three pieces of advice Luqman gave his son in Surah Luqman.', answer: 'Never associate partners with Allah, be good to parents, establish prayer and do good', points: 15 },
+    { id: 24, surah: 'Fatir', surahNumber: 35, topic: 'Originator', difficulty: 'hard', question: 'How does Surah Fatir describe the angels?', answer: 'As messengers with wings – two, three or four pairs – and Allah increases in creation what He wills', points: 25 },
+    { id: 25, surah: 'Az-Zumar', surahNumber: 39, topic: 'Groups', difficulty: 'medium', question: 'What are the two groups (zumar) mentioned in Surah Az-Zumar?', answer: 'The disbelievers driven to Hell, and the righteous led to Paradise', points: 20 },
+    { id: 26, surah: 'Ghafir', surahNumber: 40, topic: 'Forgiver', difficulty: 'hard', question: 'Who is the Believer from Pharaoh\'s family mentioned in Surah Ghafir?', answer: 'A man (unnamed) who hid his faith and defended Prophet Musa from Pharaoh', points: 25 },
+    { id: 27, surah: 'Al-Fath', surahNumber: 48, topic: 'Victory', difficulty: 'medium', question: 'What event does "Inna fatahna laka fathan mubina" refer to?', answer: 'The Treaty of Hudaybiyyah, described as a clear opening/victory', points: 20 },
+    { id: 28, surah: "Al-Hujurat", surahNumber: 49, topic: 'Chambers', difficulty: 'easy', question: 'What social guidance does Surah Al-Hujurat give about verifying news?', answer: 'Verify news from a wrongdoer before acting, to avoid harming people in ignorance (verse 6)', points: 15 },
+    { id: 29, surah: 'Al-Waqiah', surahNumber: 56, topic: 'Inevitable', difficulty: 'medium', question: 'What three groups of people does Surah Al-Waqiah describe on the Day of Judgment?', answer: 'The Companions of the Right, Companions of the Left, and the Forerunners (as-Sabiqun)', points: 20 },
+    { id: 30, surah: 'Al-Alaq', surahNumber: 96, topic: 'First Revelation', difficulty: 'easy', question: 'What were the first 5 verses revealed to Prophet Muhammad and in which surah?', answer: 'Surah Al-Alaq 1-5: "Read in the name of your Lord who created..." – the first revelation', points: 15 },
+];
+
+// Global state (survives Next.js hot reload via globalThis)
+const globalState = globalThis as typeof globalThis & { __competitionState?: CompetitionState };
+
+if (!globalState.__competitionState) {
+    globalState.__competitionState = {
+        participants: [],
+        usedNumbers: [],
+        currentSelection: null,
+        judgeNotes: {},
+        sessionActive: true,
+    };
+}
+
+export function getState(): CompetitionState {
+    return globalState.__competitionState!;
+}
+
+export function setState(updater: (prev: CompetitionState) => CompetitionState): void {
+    globalState.__competitionState = updater(globalState.__competitionState!);
+}
+
+export function getQuestion(number: number): Question | undefined {
+    return QUESTIONS.find(q => q.id === number);
+}
