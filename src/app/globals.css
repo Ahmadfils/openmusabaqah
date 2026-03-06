@@ -111,7 +111,7 @@ body {
   input,
   select,
   textarea {
-    @apply bg-turquoise-900/10 border-turquoise-700/30 text-white;
+    @apply bg-turquoise-900/10 border-turquoise-700/30 text-white px-4;
   }
 
   option {

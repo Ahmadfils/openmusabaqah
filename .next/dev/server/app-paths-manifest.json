@@ -1,9 +1,12 @@
 {
   "/api/judge/selections/route": "app/api/judge/selections/route.js",
-  "/api/admin/participants/route": "app/api/admin/participants/route.js",
   "/api/state/route": "app/api/state/route.js",
+  "/api/admin/participants/route": "app/api/admin/participants/route.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/api/admin/groups/route": "app/api/admin/groups/route.js",
+  "/api/admin/questions/route": "app/api/admin/questions/route.js",
   "/admin/page": "app/admin/page.js",
   "/judge/page": "app/judge/page.js",
   "/participant/page": "app/participant/page.js",
-  "/page": "
+  "/page": "app/page.js"
+}

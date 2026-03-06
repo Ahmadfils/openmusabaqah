@@ -16,6 +16,7 @@ export default function JudgePage() {
     const [activeBatch, setActiveBatch] = useState<any>(null); // { batchNumber, questions: [] }
     const [activeParticipant, setActiveParticipant] = useState<any>(null);
     const [notes, setNotes] = useState('');
+    const [points, setPoints] = useState<number | ''>('');
     const [saving, setSaving] = useState(false);
 
     // Quran content for each question in the active batch
@@ -47,15 +48,15 @@ export default function JudgePage() {
         if (!groupId) return;
         try {
             const [pRes, sRes, stateRes] = await Promise.all([
-                fetch(`/api/admin/participants?groupId=${groupId}`),
-                fetch(`/api/judge/selections?groupId=${groupId}`),
-                fetch('/api/state'),
+                fetch(`/api/admin/participants?groupId=${groupId}`).catch(() => null),
+                fetch(`/api/judge/selections?groupId=${groupId}`).catch(() => null),
+                fetch('/api/state').catch(() => null),
             ]);
-            if (pRes.ok) setParticipants(await pRes.json());
-            if (sRes.ok) setBatches(await sRes.json());
-            if (stateRes.ok) setSystemState(await stateRes.json());
+            if (pRes?.ok) setParticipants(await pRes.json());
+            if (sRes?.ok) setBatches(await sRes.json());
+            if (stateRes?.ok) setSystemState(await stateRes.json());
         } catch (error) {
-            console.error('Failed to fetch group data:', error);
+            // Silently ignore polling errors
         }
     }, []);
 
@@ -95,14 +96,24 @@ export default function JudgePage() {
 
     const startJudging = async (batch: any) => {
         setActiveBatch(batch);
-        setNotes('');
         setIsPlaying(false);
         if (audioRef.current) audioRef.current.pause();
 
-        // Pre-load participant score notes if any
-        const participant = participants.find(p => p.id === systemState?.currentParticipantId);
-        setActiveParticipant(participant || null);
-        if (participant?.score?.notes) setNotes(participant.score.notes);
+        // Fetch existing score if any
+        if (systemState?.currentParticipantId) {
+            const participant = participants.find(p => p.id === systemState.currentParticipantId);
+            setActiveParticipant(participant || null);
+            if (participant?.score) {
+                setNotes(participant.score.notes || '');
+                setPoints(participant.score.points ?? '');
+            } else {
+                setNotes('');
+                setPoints('');
+            }
+        } else {
+            setNotes('');
+            setPoints('');
+        }
 
         // Load Quran text for each question in the batch
         setLoadingQuran(true);
@@ -124,16 +135,17 @@ export default function JudgePage() {
     };
 
     const saveNotes = async () => {
-        if (!activeParticipant && !systemState?.currentParticipantId) return;
-        const participantId = activeParticipant?.id || systemState?.currentParticipantId;
+        if (!activeBatch || !systemState?.currentParticipantId) return;
         setSaving(true);
+
         const res = await fetch('/api/judge/score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                participantId,
+                participantId: systemState.currentParticipantId,
                 notes,
-                batchNumber: activeBatch?.batchNumber,
+                points: points === '' ? null : Number(points),
+                currentBatchNumber: activeBatch.batchNumber,
                 groupId: selectedGroupId,
             }),
         });
@@ -141,6 +153,7 @@ export default function JudgePage() {
             setActiveBatch(null);
             setActiveParticipant(null);
             setNotes('');
+            setPoints('');
             setIsPlaying(false);
             if (audioRef.current) audioRef.current.pause();
             // Reset current participant in state
@@ -181,6 +194,13 @@ export default function JudgePage() {
     const currentStateBatch = systemState?.currentBatchNumber;
     const selectedByParticipant = batches.find(b => b.batchNumber === currentStateBatch);
 
+    // Auto-load the batch when participant selects it
+    useEffect(() => {
+        if (currentStateBatch && selectedByParticipant && activeBatch?.batchNumber !== currentStateBatch) {
+            startJudging(selectedByParticipant);
+        }
+    }, [currentStateBatch, selectedByParticipant, activeBatch]);
+
     if (loading) return <div className="min-h-screen flex items-center justify-center text-turquoise-400">Initializing Judge Portal...</div>;
 
     // Audio URL: use first question's surah
@@ -202,7 +222,7 @@ export default function JudgePage() {
                             <select
                                 value={selectedGroupId}
                                 onChange={(e) => setSelectedGroupId(e.target.value)}
-                                className="bg-transparent text-white font-bold focus:outline-none border-b border-gold-500/30 cursor-pointer"
+                                className="bg-transparent text-white font-bold px-4 py-1 focus:outline-none border-b border-gold-500/30 cursor-pointer"
                             >
                                 {groups.map(g => <option key={g.id} value={g.id} className="bg-turquoise-900">{g.name}</option>)}
                             </select>
@@ -367,12 +387,12 @@ export default function JudgePage() {
                                                         <p className="text-turquoise-600 text-xs uppercase font-bold tracking-widest">Loading verses...</p>
                                                     </div>
                                                 ) : (
-                                                    <div className="font-arabic text-2xl md:text-3xl text-white leading-[2.2] text-right dir-rtl space-y-4 border-t border-white/5 pt-4 mt-2">
+                                                    <div className="max-w-4xl font-arabic text-2xl md:text-3xl text-white leading-[3] text-right dir-rtl space-y-6 border-t border-white/5 pt-6 mt-4">
                                                         {getVerseRangeText(q).map((ayah: any) => (
-                                                            <div key={ayah.number} className="relative group">
-                                                                <span className="inline-block p-3 transition-all group-hover:bg-gold-500/5 rounded-xl">
+                                                            <div key={ayah.number} className="relative group inline">
+                                                                <span className="inline p-2 transition-all group-hover:bg-gold-500/10 rounded-xl leading-[3]">
                                                                     {ayah.text}
-                                                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-gold-500/30 text-gold-500 text-xs font-mono mr-3 italic">
+                                                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-gold-500/30 text-gold-500 text-xs font-mono mx-3 italic align-middle">
                                                                         {ayah.number}
                                                                     </span>
                                                                 </span>
@@ -385,21 +405,45 @@ export default function JudgePage() {
                                     </div>
                                 </div>
 
-                                {/* Judge Notes */}
+                                {/* Judge Notes & Score */}
                                 <div className="glass-card p-8">
                                     <div className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <FileText size={18} className="text-gold-400" />
-                                            <label className="text-[10px] font-black text-turquoise-500 uppercase tracking-[0.2em]">
-                                                Judge's Notes — Batch #{activeBatch.batchNumber}{activeParticipant ? ` • ${activeParticipant.name}` : currentParticipant ? ` • ${currentParticipant.name}` : ''}
-                                            </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                            {/* Points Input */}
+                                            <div className="md:col-span-1 border-r border-white/10 pr-6">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <FileText size={18} className="text-gold-400" />
+                                                    <label className="text-[10px] font-black text-turquoise-500 uppercase tracking-[0.2em]">
+                                                        Score / 100
+                                                    </label>
+                                                </div>
+                                                <input
+                                                    type="number"
+                                                    value={points}
+                                                    onChange={(e) => setPoints(e.target.value ? Number(e.target.value) : '')}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-3xl font-black text-center focus:outline-none focus:border-gold-500/50 transition-all placeholder:text-turquoise-900/50"
+                                                    placeholder="--"
+                                                    min="0"
+                                                    max="100"
+                                                />
+                                            </div>
+
+                                            {/* Notes Textarea */}
+                                            <div className="md:col-span-3">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <FileText size={18} className="text-gold-400" />
+                                                    <label className="text-[10px] font-black text-turquoise-500 uppercase tracking-[0.2em]">
+                                                        Judge's Notes — Batch #{activeBatch.batchNumber}{activeParticipant ? ` • ${activeParticipant.name}` : currentParticipant ? ` • ${currentParticipant.name}` : ''}
+                                                    </label>
+                                                </div>
+                                                <textarea
+                                                    value={notes}
+                                                    onChange={(e) => setNotes(e.target.value)}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white min-h-[150px] focus:outline-none focus:border-gold-500/50 transition-all text-sm leading-relaxed placeholder:text-turquoise-900 font-medium"
+                                                    placeholder="Document precision, tajweed rulings, breathing control, hesitations..."
+                                                />
+                                            </div>
                                         </div>
-                                        <textarea
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-8 text-white min-h-[200px] focus:outline-none focus:border-gold-500/50 transition-all text-sm leading-relaxed placeholder:text-turquoise-900 font-medium"
-                                            placeholder="Document precision, tajweed rulings, breathing control, hesitations, and any qualitative observations..."
-                                        />
 
                                         <div className="flex gap-6">
                                             <button

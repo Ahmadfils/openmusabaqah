@@ -34,7 +34,8 @@ export default function ResultsPage() {
                 setRankings(data); // already sorted by server
             }
         } catch (error) {
-            console.error('Failed to fetch rankings:', error);
+            // Silently ignore polling errors
+            // console.error('Failed to fetch rankings:', error);
         }
     }, [selectedGroup]);
 
@@ -110,8 +111,9 @@ export default function ResultsPage() {
                                     const colors = i === 0 ? 'text-gold-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-turquoise-700';
 
                                     return (
-                                        <div
+                                        <NextLink
                                             key={p.id}
+                                            href={`/results/${p.id}`}
                                             className={`glass-card p-6 flex flex-col md:flex-row items-center gap-8 border-l-8 transition-all hover:scale-[1.01] ${isTopThree ? 'border-gold-500 bg-gold-500/5' : 'border-turquoise-900 bg-white/5'}`}
                                         >
                                             <div className={`text-5xl font-black ${colors} w-16 text-center italic`}>
@@ -123,17 +125,25 @@ export default function ResultsPage() {
                                                     <h3 className="text-2xl font-black text-white tracking-tight uppercase">{p.name}</h3>
                                                     {i === 0 && <span className="bg-gold-500 text-turquoise-950 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest inline-block w-fit mx-auto md:mx-0">Champion</span>}
                                                 </div>
-                                                <p className="text-turquoise-400/60 text-sm mt-2 italic font-medium leading-relaxed max-w-xl">
-                                                    {p.score?.notes || "Results pending judge review..."}
+                                                <p className="text-turquoise-400/60 text-sm mt-2 italic font-medium leading-relaxed max-w-xl truncate">
+                                                    {p.score?.notes ? `"${p.score.notes}"` : "Results pending judge review..."}
                                                 </p>
                                             </div>
 
-                                            <div className="flex-none">
-                                                {p.score?.notes
-                                                    ? <span className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Reviewed</span>
-                                                    : <span className="bg-turquoise-900/40 text-turquoise-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Pending</span>}
+                                            <div className="flex-none text-right">
+                                                {p.score?.points !== null && p.score?.points !== undefined ? (
+                                                    <div>
+                                                        <span className="text-5xl font-black text-white">{p.score.points}</span>
+                                                        <span className="text-gold-500 font-bold ml-1">pts</span>
+                                                    </div>
+                                                ) : p.score?.notes ? (
+                                                    <span className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Reviewed</span>
+                                                ) : (
+                                                    <span className="bg-turquoise-900/40 text-turquoise-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Pending</span>
+                                                )}
+                                                <p className="text-[10px] text-turquoise-500 mt-2 hover:text-white uppercase tracking-widest font-bold">View Details →</p>
                                             </div>
-                                        </div>
+                                        </NextLink>
                                     );
                                 })
                             )}

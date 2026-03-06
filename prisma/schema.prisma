@@ -54,13 +54,14 @@ model Participant {
   updatedAt DateTime @updatedAt
 }
 
-// Score is now purely qualitative — the judge writes free-text notes.
+// Score is now both quantitative (points) and qualitative (notes).
 model Score {
   id            String      @id @default(cuid())
   participantId String      @unique
   participant   Participant @relation(fields: [participantId], references: [id])
 
-  notes String? // Free-text judge observations
+  points Float? // Numeric score
+  notes  String? // Free-text judge observations
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

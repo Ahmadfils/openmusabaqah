@@ -11,17 +11,12 @@ export async function GET(request: Request) {
     const participants = await prisma.participant.findMany({
         where: { groupId },
         include: { score: true },
-        orderBy: { name: 'asc' },
+        orderBy: {
+            score: {
+                points: 'desc'
+            }
+        }
     });
 
-    // Sort: scored participants first, then alphabetically
-    const sorted = participants.sort((a: any, b: any) => {
-        const aHas = !!a.score?.notes;
-        const bHas = !!b.score?.notes;
-        if (aHas && !bHas) return -1;
-        if (!aHas && bHas) return 1;
-        return a.name.localeCompare(b.name);
-    });
-
-    return NextResponse.json(sorted);
+    return NextResponse.json(participants);
 }

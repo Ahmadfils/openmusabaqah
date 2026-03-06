@@ -1,39 +1,52 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NextLink from 'next/link';
-import { CheckCircle2, Loader2, Sparkles, BookOpen } from 'lucide-react';
+import { CheckCircle2, Loader2, Sparkles, BookOpen, Clock } from 'lucide-react';
 
 export default function ParticipantPage() {
-    const [groups, setGroups] = useState<any[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<any>(null);
     const [batches, setBatches] = useState<{ batchNumber: number; isUsed: boolean }[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<number | null>(null);
     const [systemState, setSystemState] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    useEffect(() => {
-        fetch('/api/admin/groups')
-            .then(r => r.ok ? r.json() : [])
-            .then(data => {
-                setGroups(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error('Failed to fetch groups:', err);
-                setLoading(false);
-            });
-    }, []);
 
     const fetchState = useCallback(async () => {
         try {
             const res = await fetch('/api/state');
-            if (res.ok) setSystemState(await res.json());
+            if (res.ok) {
+                const state = await res.json();
+                setSystemState(state);
+
+                // If the judge selected an active participant, and we haven't fetched the batches yet
+                if (state.currentParticipantId && state.currentGroupId) {
+                    fetchBatches(state.currentGroupId);
+                } else if (!state.currentParticipantId) {
+                    // Reset if no active participant
+                    setBatches([]);
+                    setSelectedBatch(null);
+                }
+            }
         } catch (error) {
-            console.error('Failed to fetch state:', error);
+            // Silently ignore polling errors to prevent dev overlays
+            // console.error('Failed to fetch state:', error);
+        } finally {
+            setLoading(false);
         }
     }, []);
+
+    const fetchBatches = async (groupId: string) => {
+        try {
+            const res = await fetch(`/api/judge/selections?groupId=${groupId}`);
+            if (res.ok) {
+                const data = await res.json();
+                // Avoid infinite re-renders by only setting if length changes or we have no batches
+                setBatches(data.map((b: any) => ({ batchNumber: b.batchNumber, isUsed: b.isUsed })));
+            }
+        } catch (error) {
+            // Silently ignore polling errors
+            // console.error('Failed to fetch batches:', error);
+        }
+    };
 
     useEffect(() => {
         fetchState();
@@ -41,78 +54,86 @@ export default function ParticipantPage() {
         return () => clearInterval(interval);
     }, [fetchState]);
 
-    const selectGroup = async (group: any) => {
-        setSelectedGroup(group);
-        setSelectedBatch(null);
-        try {
-            // Fetch all batch numbers for this group via judge/selections endpoint
-            const res = await fetch(`/api/judge/selections?groupId=${group.id}`);
-            if (res.ok) {
-                const data = await res.json();
-                setBatches(data.map((b: any) => ({ batchNumber: b.batchNumber, isUsed: b.isUsed })));
-            }
-        } catch (error) {
-            console.error('Failed to fetch batches:', error);
-        }
-    };
-
     const selectBatch = async (batchNumber: number) => {
         if (selectedBatch !== null) return; // already selected
         setSelectedBatch(batchNumber);
 
         // Broadcast that this participant picked this batch
-        await fetch('/api/state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                currentGroupId: selectedGroup?.id,
-                currentBatchNumber: batchNumber,
-            }),
-        });
-
-        if (audioRef.current) {
-            audioRef.current.play().catch(() => { });
+        try {
+            await fetch('/api/state', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentGroupId: systemState.currentGroupId,
+                    currentParticipantId: systemState.currentParticipantId,
+                    currentBatchNumber: batchNumber,
+                }),
+            });
+            // Play success sound
+            if (audioRef.current) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+            }
+        } catch (error) {
+            console.error('Failed to select batch:', error);
+            setSelectedBatch(null);
         }
     };
 
-    // The confirmed batch from judge (after they save notes, currentBatchNumber is set)
-    const confirmedBatch = systemState?.currentBatchNumber;
-
     if (loading) return (
-        <div className="min-h-screen flex flex-col items-center justify-center text-turquoise-400 gap-4">
-            <Loader2 className="animate-spin" size={40} />
-            <p className="font-bold tracking-widest uppercase text-xs">Connecting to Server...</p>
+        <div className="min-h-screen bg-turquoise-950 flex items-center justify-center p-6 text-white font-sans selection:bg-gold-500/30">
+            <Loader2 className="animate-spin text-gold-500" size={48} />
         </div>
     );
 
-    return (
-        <main className="min-h-screen p-4 md:p-8 bg-turquoise-950/20">
-            <audio ref={audioRef} src="/sounds/takbeer.mp3" />
+    const isJudgeActive = systemState?.currentParticipantId;
+    const confirmedBatch = systemState?.currentBatchNumber;
 
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-12 glass-card px-6 py-4">
-                    <NextLink href="/" className="gold-text font-bold hover:scale-105 transition-all flex items-center gap-2">
-                        <Sparkles size={18} /> OpenMusabaqah
-                    </NextLink>
-                    {selectedGroup && (
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-[10px] text-turquoise-500 font-bold uppercase tracking-tighter">Group</p>
-                                <p className="text-white font-bold text-sm">{selectedGroup.name}</p>
-                            </div>
-                            <button
-                                onClick={() => { setSelectedGroup(null); setSelectedBatch(null); setError(''); }}
-                                className="text-[10px] text-turquoise-600 hover:text-white border border-turquoise-700/30 px-3 py-1.5 rounded-lg font-bold uppercase tracking-widest transition-colors"
-                            >
-                                Change
-                            </button>
+    return (
+        <div className="min-h-screen bg-turquoise-950 bg-[url('/pattern.svg')] bg-fixed bg-opacity-5 flex items-center justify-center p-6 text-white font-sans selection:bg-gold-500/30 overflow-x-hidden">
+            {/* Audio element for ding sound */}
+            <audio ref={audioRef} src="/ding.mp3" preload="auto" />
+
+            <div className="fixed inset-0 bg-gradient-to-br from-turquoise-900/50 via-turquoise-950 to-black/80 pointer-events-none" />
+            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-600/10 blur-[120px] animate-pulse-slow" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-turquoise-600/10 blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+            </div>
+
+            <div className="max-w-6xl w-full z-10 relative">
+
+                {/* ── HEADER ── */}
+                <div className="flex justify-between items-center mb-16 animate-slide-down">
+                    <NextLink href="/" className="inline-flex items-center gap-3 text-gold-500 hover:text-gold-400 font-bold tracking-widest text-sm uppercase transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center group-hover:bg-gold-500/20 transition-colors">
+                            <BookOpen size={18} />
                         </div>
-                    )}
+                        OpenMusabaqah
+                    </NextLink>
+                    <div className="text-right">
+                        <h2 className="text-3xl font-arabic text-gold-400 mb-1">المتسابق</h2>
+                        <p className="text-turquoise-400/60 font-black tracking-[0.2em] text-xs uppercase">Participant Portal</p>
+                    </div>
                 </div>
 
-                {/* ── CONFIRMED BATCH DISPLAY (judge saved notes) ── */}
-                {confirmedBatch && selectedGroup && (
+                {/* ── HOLDING SCREEN: Waiting for judge ── */}
+                {!isJudgeActive && (
+                    <div className="animate-slide-up text-center py-20">
+                        <div className="mb-8 inline-block p-6 rounded-full bg-gold-500/10 border-2 border-gold-500/20 shadow-2xl animate-pulse">
+                            <Clock size={64} className="text-gold-400" />
+                        </div>
+                        <h1 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter uppercase">
+                            Waiting for <span className="gold-text">Judge</span>
+                        </h1>
+                        <p className="text-turquoise-400/60 text-lg max-w-lg mx-auto mb-8 font-medium">
+                            Please wait while the judge assigns your turn. Your questions will appear here shortly.
+                        </p>
+                        <p className="font-arabic text-gold-500/50 text-4xl">يرجى الانتظار حتى يتم تحديد دورك</p>
+                    </div>
+                )}
+
+                {/* ── CONFIRMED BATCH OVERLAY ── */}
+                {confirmedBatch !== null && isJudgeActive && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-turquoise-950/95 backdrop-blur-xl animate-in fade-in zoom-in duration-500">
                         <div className="max-w-lg w-full text-center">
                             <div className="mb-8 inline-block p-4 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 shadow-2xl">
@@ -133,112 +154,63 @@ export default function ParticipantPage() {
                                 </p>
                                 <p className="font-arabic text-gold-600/30 text-4xl mt-8">بالتوفيق والنجاح</p>
                             </div>
-
-                            <button
-                                onClick={() => { setSelectedBatch(null); setSelectedGroup(null); }}
-                                className="mt-8 text-[10px] text-turquoise-600 hover:text-white uppercase tracking-[0.3em] font-black transition-colors"
-                            >
-                                Back to Group Selection
-                            </button>
                         </div>
                     </div>
                 )}
 
-                {/* ── STEP 1: SELECT GROUP ── */}
-                {!selectedGroup && (
+                {/* ── BATCH SELECTION GRID ── */}
+                {isJudgeActive && confirmedBatch === null && batches.length > 0 && (
                     <div className="animate-slide-up text-center">
-                        <h1 className="text-6xl font-black text-white mb-4 uppercase tracking-tighter">
-                            Join <span className="gold-text">Competition</span>
-                        </h1>
-                        <p className="font-arabic text-gold-500/60 text-3xl mb-12">اختر مجموعة المسابقة</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {groups.map(g => (
-                                <button
-                                    key={g.id}
-                                    onClick={() => selectGroup(g)}
-                                    className="glass-card p-12 hover:border-gold-500/50 transition-all group relative overflow-hidden"
-                                >
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <CheckCircle2 size={120} />
-                                    </div>
-                                    <h2 className="text-3xl font-black text-white group-hover:text-gold-400 transition-colors uppercase tracking-tight">{g.name}</h2>
-                                    <p className="text-turquoise-400/60 text-sm mt-3 font-medium">{g.description}</p>
-                                    <div className="mt-8 flex items-center justify-center gap-2 text-gold-500 font-black uppercase text-[10px] tracking-[0.2em]">
-                                        Enter Group →
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                        <p className="text-turquoise-400 font-black tracking-[0.2em] text-xs uppercase mb-4 flex items-center justify-center gap-2">
+                            <Sparkles size={14} className="text-gold-500" /> Choose Your Destiny
+                        </p>
+                        <h2 className="text-5xl font-black text-white mb-2 uppercase tracking-tighter">Select a Batch</h2>
+                        <p className="font-arabic text-gold-500 text-3xl mb-12">اختر رقم الدفعة</p>
 
-                {/* ── STEP 2: SELECT BATCH NUMBER ── */}
-                {selectedGroup && !confirmedBatch && (
-                    <div className="animate-slide-up">
-                        <div className="text-center mb-16">
-                            <h1 className="text-6xl font-black text-white mb-2 uppercase tracking-tighter">
-                                Pick Your <span className="gold-text">Batch</span>
-                            </h1>
-                            <p className="font-arabic text-gold-500/50 text-2xl">اختر رقم الدفعة</p>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 relative">
+                            {batches.map((b) => {
+                                const isPicked = selectedBatch === b.batchNumber;
+                                return (
+                                    <button
+                                        key={b.batchNumber}
+                                        disabled={b.isUsed || (selectedBatch !== null && !isPicked)}
+                                        onClick={() => selectBatch(b.batchNumber)}
+                                        className={`
+                                            aspect-square rounded-2xl flex flex-col items-center justify-center text-3xl font-black transition-all duration-300 relative overflow-hidden
+                                            ${b.isUsed
+                                                ? 'bg-turquoise-900/30 text-turquoise-500/30 opacity-50 cursor-not-allowed border-2 border-transparent'
+                                                : isPicked
+                                                    ? 'bg-gold-500 text-turquoise-950 scale-105 shadow-[0_0_40px_rgba(234,179,8,0.4)] border-2 border-gold-400 z-10'
+                                                    : 'glass-card text-white hover:border-gold-500/50 hover:text-gold-400 hover:-translate-y-1 shadow-xl'
+                                            }
+                                            ${selectedBatch !== null && !isPicked && !b.isUsed ? 'opacity-30 scale-95' : ''}
+                                        `}
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+                                        <span className="relative z-10">{b.batchNumber}</span>
+                                        {isPicked && (
+                                            <div className="absolute inset-0 border-4 border-white/20 rounded-2xl animate-pulse" />
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
-
-                        {selectedBatch !== null ? (
-                            /* Waiting screen after selection */
-                            <div className="glass-card p-16 text-center border-emerald-500/20 relative overflow-hidden max-w-3xl mx-auto">
-                                <div className="absolute inset-0 bg-emerald-500/5 pointer-events-none" />
-                                <div className="text-7xl mb-8">🕋</div>
-                                <h2 className="text-4xl font-black text-emerald-400 uppercase tracking-tighter mb-4">Selection Locked</h2>
-                                <div className="mt-8 mb-10 inline-block py-10 px-20 rounded-[40px] bg-white/5 border border-white/10 shadow-2xl">
-                                    <p className="text-[10px] text-turquoise-500 font-black uppercase tracking-[0.3em] mb-4">Your Batch</p>
-                                    <p className="text-9xl font-black text-white tracking-tighter">#{selectedBatch}</p>
+                        {selectedBatch !== null && (
+                            <div className="mt-16 animate-fade-in p-6 glass-card border-gold-500/30 max-w-md mx-auto relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                    <BookOpen size={60} className="text-gold-500" />
                                 </div>
-                                <p className="text-turquoise-400/60 max-w-md mx-auto text-sm leading-relaxed font-medium">
-                                    Your batch selection has been sent to the judge. Please wait for confirmation.
-                                </p>
-                                <div className="flex items-center justify-center gap-3 mt-8">
-                                    <Loader2 className="animate-spin text-gold-500" size={20} />
-                                    <p className="text-turquoise-600 text-xs font-bold uppercase tracking-widest">Awaiting Judge Confirmation...</p>
+                                <div className="flex items-center justify-center gap-3 text-gold-400 mb-2">
+                                    <Loader2 className="animate-spin" size={18} />
+                                    <span className="font-black tracking-[0.2em] text-[10px] uppercase">Selection Locked</span>
                                 </div>
-                                <div className="ornament-divider max-w-xs mx-auto my-12 opacity-10" />
-                                <p className="font-arabic text-gold-600/30 text-4xl">بالتوفيق والنجاح</p>
-                            </div>
-                        ) : (
-                            /* Batch grid */
-                            <div className="space-y-8 max-w-4xl mx-auto">
-                                {error && <p className="text-center bg-red-500/10 border border-red-500/20 text-red-400 py-4 rounded-2xl text-xs font-black uppercase tracking-widest">{error}</p>}
-                                {batches.length === 0 ? (
-                                    <div className="glass-card p-16 text-center border-dashed border-2 border-turquoise-500/20 text-turquoise-700 italic">
-                                        No batches configured for this group yet. Contact the administrator.
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                                        {batches
-                                            .sort((a, b) => a.batchNumber - b.batchNumber)
-                                            .map(({ batchNumber, isUsed }) => (
-                                                <button
-                                                    key={batchNumber}
-                                                    disabled={isUsed}
-                                                    onClick={() => selectBatch(batchNumber)}
-                                                    className={isUsed
-                                                        ? 'number-tile-used opacity-30 cursor-not-allowed h-24 text-xl'
-                                                        : 'number-tile-available h-24 text-3xl font-black hover:scale-105 active:scale-95'}
-                                                >
-                                                    {batchNumber}
-                                                </button>
-                                            ))}
-                                    </div>
-                                )}
-                                <div className="flex flex-col items-center gap-4 mt-12 opacity-60">
-                                    <div className="h-px w-24 bg-turquoise-800/30" />
-                                    <p className="text-center text-turquoise-700 text-[10px] font-black uppercase tracking-[0.4em]">
-                                        Faded batches are already taken
-                                    </p>
-                                </div>
+                                <p className="text-white font-medium text-lg">Waiting for the judge to proceed with Batch #{selectedBatch}...</p>
                             </div>
                         )}
                     </div>
                 )}
+
             </div>
-        </main>
+        </div>
     );
 }

@@ -3,21 +3,22 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     try {
-        const { participantId, notes, batchNumber, groupId } = await request.json();
+        const body = await request.json();
+        const { participantId, notes, points, currentBatchNumber, groupId } = body;
 
         // Save qualitative notes for the participant
         const score = await prisma.score.upsert({
             where: { participantId },
-            update: { notes },
-            create: { participantId, notes },
+            update: { notes, points },
+            create: { participantId, notes, points },
         });
 
         // Broadcast the confirmed batch number to participants via SystemState
-        if (batchNumber !== undefined) {
+        if (currentBatchNumber !== undefined) {
             await prisma.systemState.upsert({
                 where: { id: 'default' },
-                update: { currentBatchNumber: batchNumber, currentGroupId: groupId },
-                create: { id: 'default', currentBatchNumber: batchNumber, currentGroupId: groupId },
+                update: { currentBatchNumber, currentGroupId: groupId },
+                create: { id: 'default', currentBatchNumber, currentGroupId: groupId },
             });
         }
 
