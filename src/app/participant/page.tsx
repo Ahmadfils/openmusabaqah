@@ -159,7 +159,7 @@ export default function ParticipantPage() {
                 )}
 
                 {/* ── BATCH SELECTION GRID ── */}
-                {isJudgeActive && confirmedBatch === null && batches.length > 0 && (
+                {isJudgeActive && confirmedBatch === null && batches.filter(b => !b.isUsed).length > 0 && (
                     <div className="animate-slide-up text-center">
                         <p className="text-turquoise-400 font-black tracking-[0.2em] text-xs uppercase mb-4 flex items-center justify-center gap-2">
                             <Sparkles size={14} className="text-gold-500" /> Choose Your Destiny
@@ -168,22 +168,20 @@ export default function ParticipantPage() {
                         <p className="font-arabic text-gold-500 text-3xl mb-12">اختر رقم الدفعة</p>
 
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 relative">
-                            {batches.map((b) => {
+                            {batches.filter(b => !b.isUsed).map((b) => {
                                 const isPicked = selectedBatch === b.batchNumber;
                                 return (
                                     <button
                                         key={b.batchNumber}
-                                        disabled={b.isUsed || (selectedBatch !== null && !isPicked)}
+                                        disabled={selectedBatch !== null && !isPicked}
                                         onClick={() => selectBatch(b.batchNumber)}
                                         className={`
                                             aspect-square rounded-2xl flex flex-col items-center justify-center text-3xl font-black transition-all duration-300 relative overflow-hidden
-                                            ${b.isUsed
-                                                ? 'bg-turquoise-900/30 text-turquoise-500/30 opacity-50 cursor-not-allowed border-2 border-transparent'
-                                                : isPicked
-                                                    ? 'bg-gold-500 text-turquoise-950 scale-105 shadow-[0_0_40px_rgba(234,179,8,0.4)] border-2 border-gold-400 z-10'
-                                                    : 'glass-card text-white hover:border-gold-500/50 hover:text-gold-400 hover:-translate-y-1 shadow-xl'
+                                            ${isPicked
+                                                ? 'bg-gold-500 text-turquoise-950 scale-105 shadow-[0_0_40px_rgba(234,179,8,0.4)] border-2 border-gold-400 z-10'
+                                                : 'glass-card text-white hover:border-gold-500/50 hover:text-gold-400 hover:-translate-y-1 shadow-xl'
                                             }
-                                            ${selectedBatch !== null && !isPicked && !b.isUsed ? 'opacity-30 scale-95' : ''}
+                                            ${selectedBatch !== null && !isPicked ? 'opacity-30 scale-95' : ''}
                                         `}
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
