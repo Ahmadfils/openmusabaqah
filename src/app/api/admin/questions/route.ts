@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
         const questions = await prisma.question.findMany({
             where: { groupId },
-            orderBy: { number: 'asc' },
+            orderBy: [{ number: 'asc' }, { createdAt: 'asc' }],
         });
 
         return NextResponse.json(questions);
@@ -22,14 +22,13 @@ export async function GET(request: Request) {
     }
 }
 
-// POST /api/admin/questions
+// POST /api/admin/questions — Create a question (can share batch number with others)
 export async function POST(request: Request) {
     try {
         const body = await request.json();
         const {
             number, surah, surahArabic, surahNumber,
-            startAyah, endAyah, topic, difficulty,
-            questionText, answerText, points, groupId
+            startAyah, endAyah, difficulty, groupId
         } = body;
 
         const question = await prisma.question.create({
@@ -40,20 +39,13 @@ export async function POST(request: Request) {
                 surahNumber: Number(surahNumber),
                 startAyah: startAyah ? Number(startAyah) : null,
                 endAyah: endAyah ? Number(endAyah) : null,
-                topic,
-                difficulty,
-                questionText,
-                answerText,
-                points: Number(points),
+                difficulty: difficulty || 'medium',
                 groupId,
             },
         });
 
         return NextResponse.json(question);
     } catch (error: any) {
-        if (error.code === 'P2002') {
-            return NextResponse.json({ error: 'Question number already exists in this group' }, { status: 400 });
-        }
         return NextResponse.json({ error: 'Failed to create question' }, { status: 500 });
     }
 }
@@ -64,8 +56,7 @@ export async function PUT(request: Request) {
         const body = await request.json();
         const {
             id, number, surah, surahArabic, surahNumber,
-            startAyah, endAyah, topic, difficulty,
-            questionText, answerText, points
+            startAyah, endAyah, difficulty
         } = body;
 
         const question = await prisma.question.update({
@@ -77,11 +68,7 @@ export async function PUT(request: Request) {
                 surahNumber: Number(surahNumber),
                 startAyah: startAyah ? Number(startAyah) : null,
                 endAyah: endAyah ? Number(endAyah) : null,
-                topic,
                 difficulty,
-                questionText,
-                answerText,
-                points: Number(points),
             },
         });
 
@@ -101,10 +88,7 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'id is required' }, { status: 400 });
         }
 
-        await prisma.question.delete({
-            where: { id },
-        });
-
+        await prisma.question.delete({ where: { id } });
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 });

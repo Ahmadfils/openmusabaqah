@@ -20,75 +20,57 @@ model Group {
   updatedAt    DateTime      @updatedAt
 }
 
+// A Question belongs to a batch (identified by `number`).
+// Multiple Questions can share the same `number` within a group — they form a batch.
 model Question {
-  id             String    @id @default(cuid())
-  number         Int       // The selection number (1-30 typically)
-  surah          String
-  surahArabic    String?   // Arabic name for the surah
-  surahNumber    Int
-  startAyah      Int?      // Starting ayah for the question
-  endAyah        Int?      // Ending ayah for the question
-  topic          String?
-  difficulty     String    @default("medium") // easy, medium, hard
-  questionText   String
-  answerText     String?
-  points         Int       @default(10)
-  isUsed         Boolean   @default(false)
-  
-  groupId        String
-  group          Group     @relation(fields: [groupId], references: [id])
-  
-  selection      Selection?
-  
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  number      Int      // Batch number (1-30 typically). Multiple questions can share this.
+  surah       String
+  surahArabic String?
+  surahNumber Int
+  startAyah   Int?
+  endAyah     Int?
+  difficulty  String   @default("medium") // easy, medium, hard
+  isUsed      Boolean  @default(false)
 
-  @@unique([groupId, number])
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Participant {
-  id           String    @id @default(cuid())
-  name         String
-  identifier   String?   @unique // e.g., seat number or registration ID
-  
-  groupId      String
-  group          Group     @relation(fields: [groupId], references: [id])
-  
-  selection    Selection?
-  score        Score?
-  
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id         String  @id @default(cuid())
+  name       String
+  identifier String? @unique // e.g., seat number or registration ID
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  score Score?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Selection {
-  id            String      @id @default(cuid())
-  participantId String      @unique
-  participant   Participant @relation(fields: [participantId], references: [id])
-  
-  questionId    String      @unique
-  question      Question    @relation(fields: [questionId], references: [id])
-  
-  selectedAt    DateTime    @default(now())
-}
-
+// Score is now purely qualitative — the judge writes free-text notes.
 model Score {
   id            String      @id @default(cuid())
   participantId String      @unique
   participant   Participant @relation(fields: [participantId], references: [id])
-  
-  points        Int         @default(0)
-  notes         String?
-  judgeName     String?
-  
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+
+  notes String? // Free-text judge observations
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+// Central real-time synchronisation state
 model SystemState {
-  id                   String  @id @default("default")
+  id                   String   @id @default("default")
   currentGroupId       String?
-  currentParticipantId String?
-  currentQuestionId    String?
+  currentParticipantId String?  // Judge-activated participant
+  currentBatchNumber   Int?     // Batch number chosen by the participant (broadcasted to their screen)
   updatedAt            DateTime @updatedAt
 }

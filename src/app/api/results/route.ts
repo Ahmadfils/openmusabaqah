@@ -7,15 +7,21 @@ export async function GET(request: Request) {
 
     if (!groupId) return NextResponse.json({ error: 'Group ID required' }, { status: 400 });
 
+    // Return participants with their qualitative notes
     const participants = await prisma.participant.findMany({
         where: { groupId },
         include: { score: true },
-        orderBy: [
-            { score: { points: 'desc' } },
-            { name: 'asc' }
-        ]
+        orderBy: { name: 'asc' },
     });
 
-    // Filter for those who have a score (optional, or show all)
-    return NextResponse.json(participants);
+    // Sort: scored participants first, then alphabetically
+    const sorted = participants.sort((a: any, b: any) => {
+        const aHas = !!a.score?.notes;
+        const bHas = !!b.score?.notes;
+        if (aHas && !bHas) return -1;
+        if (!aHas && bHas) return 1;
+        return a.name.localeCompare(b.name);
+    });
+
+    return NextResponse.json(sorted);
 }

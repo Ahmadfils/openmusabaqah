@@ -25,7 +25,7 @@ export default function ResultsPage() {
         if (res.ok) {
             const data = await res.json();
             // Sort by points descending, filtering those without scores if needed or just showing 0
-            setRankings(data.sort((a: any, b: any) => (b.score?.points || 0) - (a.score?.points || 0)));
+            setRankings(data); // already sorted by server
         }
     }, [selectedGroup]);
 
@@ -119,11 +119,10 @@ export default function ResultsPage() {
                                                 </p>
                                             </div>
 
-                                            <div className="flex md:flex-col items-center gap-2 bg-white/5 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none w-full md:w-auto justify-center">
-                                                <div className={`text-5xl font-black ${isTopThree ? 'text-gold-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]' : 'text-white'}`}>
-                                                    {p.score?.points || 0}
-                                                </div>
-                                                <div className="text-[10px] text-turquoise-600 uppercase font-black tracking-[0.3em]">Score</div>
+                                            <div className="flex-none">
+                                                {p.score?.notes
+                                                    ? <span className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Reviewed</span>
+                                                    : <span className="bg-turquoise-900/40 text-turquoise-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Pending</span>}
                                             </div>
                                         </div>
                                     );

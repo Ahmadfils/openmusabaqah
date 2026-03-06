@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET /api/state — Fetch the current system state
+// GET /api/state
 export async function GET() {
     try {
         const state = await prisma.systemState.findUnique({
@@ -9,7 +9,6 @@ export async function GET() {
         });
 
         if (!state) {
-            // Initialize if not exists
             const newState = await prisma.systemState.create({
                 data: { id: 'default' },
             });
@@ -22,24 +21,24 @@ export async function GET() {
     }
 }
 
-// POST /api/state — Update the system state
+// POST /api/state
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { currentGroupId, currentParticipantId, currentQuestionId } = body;
+        const { currentGroupId, currentParticipantId, currentBatchNumber } = body;
 
         const state = await prisma.systemState.upsert({
             where: { id: 'default' },
             update: {
                 currentGroupId,
                 currentParticipantId,
-                currentQuestionId,
+                currentBatchNumber: currentBatchNumber ?? null,
             },
             create: {
                 id: 'default',
                 currentGroupId,
                 currentParticipantId,
-                currentQuestionId,
+                currentBatchNumber: currentBatchNumber ?? null,
             },
         });
 
