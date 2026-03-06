@@ -14,15 +14,25 @@ export default function ParticipantPage() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        fetch('/api/admin/groups').then(r => r.ok ? r.json() : []).then(data => {
-            setGroups(data);
-            setLoading(false);
-        });
+        fetch('/api/admin/groups')
+            .then(r => r.ok ? r.json() : [])
+            .then(data => {
+                setGroups(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to fetch groups:', err);
+                setLoading(false);
+            });
     }, []);
 
     const fetchState = useCallback(async () => {
-        const res = await fetch('/api/state');
-        if (res.ok) setSystemState(await res.json());
+        try {
+            const res = await fetch('/api/state');
+            if (res.ok) setSystemState(await res.json());
+        } catch (error) {
+            console.error('Failed to fetch state:', error);
+        }
     }, []);
 
     useEffect(() => {
@@ -34,11 +44,15 @@ export default function ParticipantPage() {
     const selectGroup = async (group: any) => {
         setSelectedGroup(group);
         setSelectedBatch(null);
-        // Fetch all batch numbers for this group via judge/selections endpoint
-        const res = await fetch(`/api/judge/selections?groupId=${group.id}`);
-        if (res.ok) {
-            const data = await res.json();
-            setBatches(data.map((b: any) => ({ batchNumber: b.batchNumber, isUsed: b.isUsed })));
+        try {
+            // Fetch all batch numbers for this group via judge/selections endpoint
+            const res = await fetch(`/api/judge/selections?groupId=${group.id}`);
+            if (res.ok) {
+                const data = await res.json();
+                setBatches(data.map((b: any) => ({ batchNumber: b.batchNumber, isUsed: b.isUsed })));
+            }
+        } catch (error) {
+            console.error('Failed to fetch batches:', error);
         }
     };
 

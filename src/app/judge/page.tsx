@@ -29,25 +29,34 @@ export default function JudgePage() {
     useEffect(() => { fetchInitialData(); }, []);
 
     const fetchInitialData = async () => {
-        const res = await fetch('/api/admin/groups');
-        if (res.ok) {
-            const data = await res.json();
-            setGroups(data);
-            if (data.length > 0) setSelectedGroupId(data[0].id);
+        try {
+            const res = await fetch('/api/admin/groups');
+            if (res.ok) {
+                const data = await res.json();
+                setGroups(data);
+                if (data.length > 0) setSelectedGroupId(data[0].id);
+            }
+        } catch (error) {
+            console.error('Failed to fetch initial data:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const fetchGroupData = useCallback(async (groupId: string) => {
         if (!groupId) return;
-        const [pRes, sRes, stateRes] = await Promise.all([
-            fetch(`/api/admin/participants?groupId=${groupId}`),
-            fetch(`/api/judge/selections?groupId=${groupId}`),
-            fetch('/api/state'),
-        ]);
-        if (pRes.ok) setParticipants(await pRes.json());
-        if (sRes.ok) setBatches(await sRes.json());
-        if (stateRes.ok) setSystemState(await stateRes.json());
+        try {
+            const [pRes, sRes, stateRes] = await Promise.all([
+                fetch(`/api/admin/participants?groupId=${groupId}`),
+                fetch(`/api/judge/selections?groupId=${groupId}`),
+                fetch('/api/state'),
+            ]);
+            if (pRes.ok) setParticipants(await pRes.json());
+            if (sRes.ok) setBatches(await sRes.json());
+            if (stateRes.ok) setSystemState(await stateRes.json());
+        } catch (error) {
+            console.error('Failed to fetch group data:', error);
+        }
     }, []);
 
     useEffect(() => {

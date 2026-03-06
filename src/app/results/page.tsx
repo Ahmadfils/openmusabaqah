@@ -14,18 +14,27 @@ export default function ResultsPage() {
     }, []);
 
     const fetchGroups = async () => {
-        const res = await fetch('/api/admin/groups');
-        if (res.ok) setGroups(await res.json());
-        setLoading(false);
+        try {
+            const res = await fetch('/api/admin/groups');
+            if (res.ok) setGroups(await res.json());
+        } catch (error) {
+            console.error('Failed to fetch groups:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fetchRankings = useCallback(async () => {
         if (!selectedGroup) return;
-        const res = await fetch(`/api/results?groupId=${selectedGroup.id}`);
-        if (res.ok) {
-            const data = await res.json();
-            // Sort by points descending, filtering those without scores if needed or just showing 0
-            setRankings(data); // already sorted by server
+        try {
+            const res = await fetch(`/api/results?groupId=${selectedGroup.id}`);
+            if (res.ok) {
+                const data = await res.json();
+                // Sort by points descending, filtering those without scores if needed or just showing 0
+                setRankings(data); // already sorted by server
+            }
+        } catch (error) {
+            console.error('Failed to fetch rankings:', error);
         }
     }, [selectedGroup]);
 

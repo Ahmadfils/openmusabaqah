@@ -75,26 +75,38 @@ export default function AdminPage() {
     };
 
     const fetchGroups = async () => {
-        const res = await fetch('/api/admin/groups');
-        if (res.ok) {
-            const data = await res.json();
-            setGroups(data);
-            if (data.length > 0) {
-                if (!selectedGroupId) setSelectedGroupId(data[0].id);
-                if (!pGroupId) setPGroupId(data[0].id);
+        try {
+            const res = await fetch('/api/admin/groups');
+            if (res.ok) {
+                const data = await res.json();
+                setGroups(data);
+                if (data.length > 0) {
+                    if (!selectedGroupId) setSelectedGroupId(data[0].id);
+                    if (!pGroupId) setPGroupId(data[0].id);
+                }
             }
+        } catch (error) {
+            console.error('Failed to fetch groups:', error);
         }
     };
 
     const fetchQuestions = async (groupId: string) => {
         if (!groupId) return;
-        const res = await fetch(`/api/admin/questions?groupId=${groupId}`);
-        if (res.ok) setQuestions(await res.json());
+        try {
+            const res = await fetch(`/api/admin/questions?groupId=${groupId}`);
+            if (res.ok) setQuestions(await res.json());
+        } catch (error) {
+            console.error('Failed to fetch questions:', error);
+        }
     };
 
     const fetchParticipants = async () => {
-        const res = await fetch('/api/admin/participants');
-        if (res.ok) setParticipants(await res.json());
+        try {
+            const res = await fetch('/api/admin/participants');
+            if (res.ok) setParticipants(await res.json());
+        } catch (error) {
+            console.error('Failed to fetch participants:', error);
+        }
     };
 
     useEffect(() => {
