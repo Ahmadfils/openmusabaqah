@@ -82,16 +82,35 @@ export default function JudgePage() {
     };
 
     const setNextUp = async () => {
+        // Validate participant selection
+        if (!nextParticipantId) {
+            alert('Please select a participant first.');
+            return;
+        }
+
+        // Prevent changing participants if current one has an active batch being judged
+        if (activeBatch && systemState?.currentParticipantId && systemState?.currentBatchNumber !== null) {
+            alert('Finish judging the current participant first. Either save or discard to move to the next participant.');
+            return;
+        }
+
         const res = await fetch('/api/state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 currentGroupId: selectedGroupId,
-                currentParticipantId: nextParticipantId || null,
+                currentParticipantId: nextParticipantId,
                 currentBatchNumber: null,
+                status: 'waiting_batch',
             }),
         });
-        if (res.ok) setSystemState(await res.json());
+        if (res.ok) {
+            const newState = await res.json();
+            setSystemState(newState);
+            // Keep nextParticipantId set until after save/discard
+        } else {
+            alert('Failed to set active participant. Try again.');
+        }
     };
 
     const startJudging = async (batch: any) => {
@@ -122,7 +141,7 @@ export default function JudgePage() {
         }
         setLoadingQuran(false);
 
-        // Update system state to show this participant is active
+        // Update system state to show batch is selected
         await fetch('/api/state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -130,6 +149,7 @@ export default function JudgePage() {
                 currentGroupId: selectedGroupId,
                 currentParticipantId: systemState?.currentParticipantId || null,
                 currentBatchNumber: batch.batchNumber,
+                status: 'judging',
             }),
         });
     };
@@ -156,16 +176,17 @@ export default function JudgePage() {
             setPoints('');
             setIsPlaying(false);
             if (audioRef.current) audioRef.current.pause();
-            // Reset current participant in state
-            await fetch('/api/state', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    currentGroupId: selectedGroupId,
-                    currentParticipantId: null,
-                    currentBatchNumber: activeBatch?.batchNumber, // keep batch visible on participant screen
-                }),
+
+            // Clear local system state to immediately reset the UI
+            setSystemState({
+                id: 'default',
+                currentGroupId: null,
+                currentParticipantId: null,
+                currentBatchNumber: null,
+                status: 'inactive'
             });
+
+            setNextParticipantId('');
             fetchGroupData(selectedGroupId);
         }
         setSaving(false);
@@ -277,10 +298,10 @@ export default function JudgePage() {
                                 <RotateCcw size={18} className="text-gold-400" /> Batches
                             </h2>
                             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
-                                {batches.length === 0 ? (
-                                    <p className="text-turquoise-800 italic text-sm">No batches configured...</p>
+                                {batches.filter(b => !b.isUsed).length === 0 ? (
+                                    <p className="text-turquoise-800 italic text-sm">No available batches...</p>
                                 ) : (
-                                    batches.sort((a, b) => a.batchNumber - b.batchNumber).map(batch => (
+                                    batches.filter(b => !b.isUsed).sort((a, b) => a.batchNumber - b.batchNumber).map(batch => (
                                         <button
                                             key={batch.batchNumber}
                                             onClick={() => startJudging(batch)}
@@ -447,7 +468,32 @@ export default function JudgePage() {
 
                                         <div className="flex gap-6">
                                             <button
-                                                onClick={() => { setActiveBatch(null); setNotes(''); setIsPlaying(false); if (audioRef.current) audioRef.current.pause(); }}
+                                                onClick={async () => {
+                                                    setActiveBatch(null);
+                                                    setNotes('');
+                                                    setPoints('');
+                                                    setIsPlaying(false);
+                                                    if (audioRef.current) audioRef.current.pause();
+
+                                                    // Clear local system state to immediately reset the UI
+                                                    setSystemState({
+                                                        id: 'default',
+                                                        currentGroupId: null,
+                                                        currentParticipantId: null,
+                                                        currentBatchNumber: null,
+                                                        status: 'inactive'
+                                                    });
+
+                                                    // Reset entire system state by deleting all rows
+                                                    await fetch('/api/state', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ reset: true }),
+                                                    });
+
+                                                    setNextParticipantId('');
+                                                    fetchGroupData(selectedGroupId);
+                                                }}
                                                 className="flex-1 py-5 rounded-2xl border border-turquoise-800 text-turquoise-600 font-black uppercase tracking-widest hover:bg-turquoise-950/40 hover:text-white transition-all text-xs"
                                             >
                                                 Discard

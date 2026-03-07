@@ -13,17 +13,24 @@ export async function POST(request: Request) {
             create: { participantId, notes, points },
         });
 
-        // Broadcast the confirmed batch number to participants via SystemState
-        if (currentBatchNumber !== undefined) {
-            await prisma.systemState.upsert({
-                where: { id: 'default' },
-                update: { currentBatchNumber, currentGroupId: groupId },
-                create: { id: 'default', currentBatchNumber, currentGroupId: groupId },
+        // Mark all questions in this batch as used
+        if (currentBatchNumber !== undefined && groupId) {
+            await prisma.question.updateMany({
+                where: {
+                    number: currentBatchNumber,
+                    groupId: groupId,
+                },
+                data: { isUsed: true },
             });
         }
 
+        // Clear the system state using raw SQL (this ends the participant's turn)
+        console.log('API: POST /api/judge/score - Turn finished, deleting SystemState via Raw SQL');
+        await prisma.$executeRawUnsafe('DELETE FROM "SystemState"');
+
         return NextResponse.json(score);
     } catch (error) {
+        console.error('API Error: Score saving failed', error);
         return NextResponse.json({ error: 'Failed to save notes' }, { status: 500 });
     }
 }

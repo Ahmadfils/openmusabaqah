@@ -17,11 +17,11 @@ export default function ParticipantPage() {
                 const state = await res.json();
                 setSystemState(state);
 
-                // If the judge selected an active participant, and we haven't fetched the batches yet
+                // If the judge selected an active participant, fetch the batches
                 if (state.currentParticipantId && state.currentGroupId) {
                     fetchBatches(state.currentGroupId);
-                } else if (!state.currentParticipantId) {
-                    // Reset if no active participant
+                } else {
+                    // Reset batches if no active participant
                     setBatches([]);
                     setSelectedBatch(null);
                 }
@@ -53,6 +53,13 @@ export default function ParticipantPage() {
         const interval = setInterval(fetchState, 2500);
         return () => clearInterval(interval);
     }, [fetchState]);
+
+    // Reset selectedBatch when confirmedBatch is cleared
+    useEffect(() => {
+        if (systemState?.currentBatchNumber === null && selectedBatch !== null) {
+            setSelectedBatch(null);
+        }
+    }, [systemState?.currentBatchNumber, selectedBatch]);
 
     const selectBatch = async (batchNumber: number) => {
         if (selectedBatch !== null) return; // already selected

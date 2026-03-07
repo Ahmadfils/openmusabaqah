@@ -73,5 +73,6 @@ model SystemState {
   currentGroupId       String?
   currentParticipantId String?  // Judge-activated participant
   currentBatchNumber   Int?     // Batch number chosen by the participant (broadcasted to their screen)
+  status               String   @default("inactive") // inactive, waiting_batch, batch_selected, judging
   updatedAt            DateTime @updatedAt
 }
