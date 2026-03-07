@@ -1044,9 +1044,6 @@ input:-webkit-autofill,
 .animate-spin{
   animation: spin 1s linear infinite;
 }
-.cursor-not-allowed{
-  cursor: not-allowed;
-}
 .cursor-pointer{
   cursor: pointer;
 }
@@ -1226,9 +1223,6 @@ input:-webkit-autofill,
 }
 .border-gold-500\/50{
   border-color: rgb(245 158 11 / 0.5);
-}
-.border-transparent{
-  border-color: transparent;
 }
 .border-turquoise-500\/10{
   border-color: rgb(20 184 166 / 0.1);
@@ -1765,9 +1759,6 @@ input:-webkit-autofill,
   --tw-text-opacity: 1;
   color: rgb(20 184 166 / var(--tw-text-opacity, 1));
 }
-.text-turquoise-500\/30{
-  color: rgb(20 184 166 / 0.3);
-}
 .text-turquoise-600{
   --tw-text-opacity: 1;
   color: rgb(13 148 136 / var(--tw-text-opacity, 1));
@@ -1871,6 +1862,9 @@ input:-webkit-autofill,
 }
 .drop-shadow-\[0_0_20px_rgba\(255\2c 255\2c 255\2c 0\.2\)\]{
   --tw-drop-shadow: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+.filter{
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 .backdrop-blur-sm{
