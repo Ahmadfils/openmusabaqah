@@ -380,17 +380,21 @@ export default function JudgePage() {
                                                             <Loader2 className="animate-spin text-gold-500" size={20} />
                                                         </div>
                                                     ) : (
-                                                        <div className="max-w-4xl font-arabic text-2xl md:text-3xl text-white leading-[1.8] text-right dir-rtl space-y-12 border-t border-white/5 pt-8 mt-4">
+                                                        <div className="max-w-4xl font-arabic text-2xl md:text-3xl text-white text-right dir-rtl pt-4 mt-2">
                                                             {getVerseRangeText(q).map((ayah: any) => (
-                                                                <div key={ayah.number} className="relative group pb-8 border-b border-white/5 last:border-0 last:pb-0">
-                                                                    <div className="flex items-start gap-6 justify-end">
-                                                                        <span className="flex-1 transition-all group-hover:text-gold-100">
-                                                                            {ayah.text}
-                                                                        </span>
-                                                                        <span className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full border border-gold-500/30 text-gold-500 text-sm font-mono italic mt-2">
-                                                                            {ayah.number}
-                                                                        </span>
-                                                                    </div>
+                                                                <div 
+                                                                    key={ayah.number} 
+                                                                    className="transition-all hover:text-gold-100 leading-[3.0] pb-12 border-b border-white/10 last:border-0 mb-4"
+                                                                    style={{
+                                                                        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
+                                                                        backgroundSize: '100% 3.0em',
+                                                                        backgroundPosition: '0 2.6em'
+                                                                    }}
+                                                                >
+                                                                    {ayah.text}
+                                                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-gold-500/30 text-gold-500 text-[10px] font-mono mx-3 italic align-middle mb-1 bg-turquoise-900/40">
+                                                                        {ayah.number}
+                                                                    </span>
                                                                 </div>
                                                             ))}
                                                         </div>

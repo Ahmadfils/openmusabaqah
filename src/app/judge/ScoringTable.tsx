@@ -17,8 +17,8 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
         { id: Math.random().toString(36).substr(2, 9), tajweed: '', memorization: '' }
     ]);
 
-    const maxTajweed = 70;
-    const maxMemorization = 30;
+    const maxTajweed = 30;
+    const maxMemorization = 70;
 
     const addRow = () => {
         setRows([...rows, { id: Math.random().toString(36).substr(2, 9), tajweed: '', memorization: '' }]);
@@ -49,8 +49,8 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
     const tajweedDeductions = rows.reduce((sum, row) => sum + (typeof row.tajweed === 'number' ? row.tajweed : 0), 0);
     const memorizationDeductions = rows.reduce((sum, row) => sum + (typeof row.memorization === 'number' ? row.memorization : 0), 0);
 
-    const tajweedScore = Math.max(0, maxTajweed + tajweedDeductions);
-    const memorizationScore = Math.max(0, maxMemorization + memorizationDeductions);
+    const tajweedScore = Math.max(0, maxTajweed - tajweedDeductions);
+    const memorizationScore = Math.max(0, maxMemorization - memorizationDeductions);
     const totalScore = tajweedScore + memorizationScore;
 
     useEffect(() => {
@@ -68,8 +68,8 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
                     <thead>
                         <tr className="border-b border-white/10">
                             <th className="py-2 px-1 text-[9px] text-turquoise-500 font-bold uppercase tracking-widest w-8">#</th>
-                            <th className="py-2 px-1 text-[9px] text-turquoise-500 font-bold uppercase tracking-widest text-center">Tajweed (70)</th>
-                            <th className="py-2 px-1 text-[9px] text-turquoise-500 font-bold uppercase tracking-widest text-center">Memorization (30)</th>
+                            <th className="py-2 px-1 text-[9px] text-turquoise-500 font-bold uppercase tracking-widest text-center">Tajweed (30)</th>
+                            <th className="py-2 px-1 text-[9px] text-turquoise-500 font-bold uppercase tracking-widest text-center">Memorization (70)</th>
                             <th className="py-2 px-1 w-8"></th>
                         </tr>
                     </thead>
@@ -84,7 +84,7 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
                                         value={row.tajweed}
                                         onChange={(e) => updateRow(row.id, 'tajweed', e.target.value)}
                                         placeholder="0"
-                                        className="w-full bg-turquoise-900/40 border border-turquoise-700/30 rounded-lg px-2 py-1.5 text-white text-center focus:outline-none focus:border-gold-500/50 transition-all text-xs"
+                                        className="w-full bg-turquoise-900/40 border border-turquoise-700/30 rounded-lg px-2 py-2.5 text-white text-center focus:outline-none focus:border-gold-500/50 transition-all text-sm font-bold"
                                     />
                                 </td>
                                 <td className="py-2 px-1">
@@ -94,7 +94,7 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
                                         value={row.memorization}
                                         onChange={(e) => updateRow(row.id, 'memorization', e.target.value)}
                                         placeholder="0"
-                                        className="w-full bg-turquoise-900/40 border border-turquoise-700/30 rounded-lg px-2 py-1.5 text-white text-center focus:outline-none focus:border-gold-500/50 transition-all text-xs"
+                                        className="w-full bg-turquoise-900/40 border border-turquoise-700/30 rounded-lg px-2 py-2.5 text-white text-center focus:outline-none focus:border-gold-500/50 transition-all text-sm font-bold"
                                     />
                                 </td>
                                 <td className="py-2 px-1 text-right">
@@ -122,15 +122,15 @@ export default function ScoringTable({ onTotalChange }: ScoringTableProps) {
             <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
                 <div className="text-center p-2 rounded-xl bg-white/5 border border-white/10">
                     <p className="text-[8px] text-turquoise-500 font-bold uppercase tracking-widest mb-0.5">Tajweed</p>
-                    <p className="text-base font-black text-white">{tajweedScore.toFixed(1)}</p>
+                    <p className="text-lg font-black text-white">{tajweedScore.toFixed(1)}</p>
                 </div>
                 <div className="text-center p-2 rounded-xl bg-white/5 border border-white/10">
                     <p className="text-[8px] text-turquoise-500 font-bold uppercase tracking-widest mb-0.5">Memorization</p>
-                    <p className="text-base font-black text-white">{memorizationScore.toFixed(1)}</p>
+                    <p className="text-lg font-black text-white">{memorizationScore.toFixed(1)}</p>
                 </div>
                 <div className="text-center p-2 rounded-xl bg-gold-500/10 border border-gold-500/30">
                     <p className="text-[8px] text-gold-500 font-bold uppercase tracking-widest mb-0.5">Total</p>
-                    <p className="text-base font-black text-gold-400">{totalScore.toFixed(1)}</p>
+                    <p className="text-xl font-black text-gold-400">{totalScore.toFixed(1)}</p>
                 </div>
             </div>
         </div>
