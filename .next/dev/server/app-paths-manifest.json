@@ -1,8 +1,8 @@
 {
-  "/api/admin/groups/route": "app/api/admin/groups/route.js",
-  "/api/admin/participants/route": "app/api/admin/participants/route.js",
-  "/api/judge/selections/route": "app/api/judge/selections/route.js",
   "/api/state/route": "app/api/state/route.js",
+  "/api/admin/groups/route": "app/api/admin/groups/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
+  "/participant/page": "app/participant/page.js",
   "/judge/page": "app/judge/page.js"
 }

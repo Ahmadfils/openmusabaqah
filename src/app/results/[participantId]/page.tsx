@@ -3,8 +3,8 @@ import NextLink from 'next/link';
 import { notFound } from 'next/navigation';
 import { Trophy, ChevronLeft, User, Star, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 
-export default async function ParticipantDetailsPage({ params }: { params: { participantId: string } }) {
-    const { participantId } = params;
+export default async function ParticipantDetailsPage({ params }: { params: Promise<{ participantId: string }> }) {
+    const { participantId } = await params;
 
     const participant = await prisma.participant.findUnique({
         where: { id: participantId },

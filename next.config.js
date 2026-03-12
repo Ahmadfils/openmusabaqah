@@ -8,6 +8,11 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactStrictMode: true,
+  staticPageGenerationTimeout: 300,
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
+  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);

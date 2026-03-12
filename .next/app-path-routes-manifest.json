@@ -1,0 +1,22 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/_global-error/page": "/_global-error",
+  "/api/admin/groups/route": "/api/admin/groups",
+  "/api/admin/participants/route": "/api/admin/participants",
+  "/api/admin/questions/route": "/api/admin/questions",
+  "/api/events/route": "/api/events",
+  "/api/judge/score/route": "/api/judge/score",
+  "/api/judge/selections/route": "/api/judge/selections",
+  "/api/participants/route": "/api/participants",
+  "/api/participants/select/route": "/api/participants/select",
+  "/api/participants/selection/route": "/api/participants/selection",
+  "/api/questions/route": "/api/questions",
+  "/api/results/route": "/api/results",
+  "/api/state/route": "/api/state",
+  "/admin/page": "/admin",
+  "/judge/page": "/judge",
+  "/page": "/",
+  "/participant/page": "/participant",
+  "/results/[participantId]/page": "/results/[participantId]",
+  "/results/page": "/results"
+}
