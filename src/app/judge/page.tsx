@@ -384,7 +384,7 @@ export default function JudgePage() {
                                                             {getVerseRangeText(q).map((ayah: any) => (
                                                                 <div 
                                                                     key={ayah.number} 
-                                                                    className="transition-all hover:text-gold-100 leading-[3.0] pb-12 border-b border-white/10 last:border-0 mb-4"
+                                                                    className="transition-all hover:text-gold-100 leading-[3.0] pb-8 border-b border-white/10 last:border-0 mb-2"
                                                                     style={{
                                                                         backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
                                                                         backgroundSize: '100% 3.0em',
