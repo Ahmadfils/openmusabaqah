@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NextLink from 'next/link';
-import { Users, BookOpen, ChevronRight, Save, RotateCcw, Play, Pause, Volume2, Loader2, Layers, FileText } from 'lucide-react';
+import { Users, BookOpen, ChevronRight, Save, RotateCcw, Play, Pause, Volume2, Loader2, Layers, FileText, Layout } from 'lucide-react';
+import ScoringTable from './ScoringTable';
 
 export default function JudgePage() {
     const [loading, setLoading] = useState(true);
@@ -15,7 +16,6 @@ export default function JudgePage() {
     // Active judging session
     const [activeBatch, setActiveBatch] = useState<any>(null); // { batchNumber, questions: [] }
     const [activeParticipant, setActiveParticipant] = useState<any>(null);
-    const [notes, setNotes] = useState('');
     const [points, setPoints] = useState<number | ''>('');
     const [saving, setSaving] = useState(false);
 
@@ -82,13 +82,10 @@ export default function JudgePage() {
     };
 
     const setNextUp = async () => {
-        // Validate participant selection
         if (!nextParticipantId) {
             alert('Please select a participant first.');
             return;
         }
-
-        // Prevent changing participants if current one has an active batch being judged
         if (activeBatch && systemState?.currentParticipantId && systemState?.currentBatchNumber !== null) {
             alert('Finish judging the current participant first. Either save or discard to move to the next participant.');
             return;
@@ -107,7 +104,6 @@ export default function JudgePage() {
         if (res.ok) {
             const newState = await res.json();
             setSystemState(newState);
-            // Keep nextParticipantId set until after save/discard
         } else {
             alert('Failed to set active participant. Try again.');
         }
@@ -118,30 +114,24 @@ export default function JudgePage() {
         setIsPlaying(false);
         if (audioRef.current) audioRef.current.pause();
 
-        // Fetch existing score if any
         if (systemState?.currentParticipantId) {
             const participant = participants.find(p => p.id === systemState.currentParticipantId);
             setActiveParticipant(participant || null);
             if (participant?.score) {
-                setNotes(participant.score.notes || '');
                 setPoints(participant.score.points ?? '');
             } else {
-                setNotes('');
                 setPoints('');
             }
         } else {
-            setNotes('');
             setPoints('');
         }
 
-        // Load Quran text for each question in the batch
         setLoadingQuran(true);
         for (const q of batch.questions) {
             if (q.surahNumber) await fetchSurahDetail(q.surahNumber);
         }
         setLoadingQuran(false);
 
-        // Update system state to show batch is selected
         await fetch('/api/state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -163,33 +153,43 @@ export default function JudgePage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 participantId: systemState.currentParticipantId,
-                notes,
+                notes: 'Scoring Table used',
                 points: points === '' ? null : Number(points),
                 currentBatchNumber: activeBatch.batchNumber,
                 groupId: selectedGroupId,
             }),
         });
         if (res.ok) {
-            setActiveBatch(null);
-            setActiveParticipant(null);
-            setNotes('');
-            setPoints('');
-            setIsPlaying(false);
-            if (audioRef.current) audioRef.current.pause();
-
-            // Clear local system state to immediately reset the UI
-            setSystemState({
-                id: 'default',
-                currentGroupId: null,
-                currentParticipantId: null,
-                currentBatchNumber: null,
-                status: 'inactive'
-            });
-
-            setNextParticipantId('');
-            fetchGroupData(selectedGroupId);
+            handleDiscard();
         }
         setSaving(false);
+    };
+
+    const handleDiscard = async (isManualDiscard = false) => {
+        setActiveBatch(null);
+        setActiveParticipant(null);
+        setPoints('');
+        setIsPlaying(false);
+        if (audioRef.current) audioRef.current.pause();
+
+        setSystemState({
+            id: 'default',
+            currentGroupId: null,
+            currentParticipantId: null,
+            currentBatchNumber: null,
+            status: 'inactive'
+        });
+
+        if (isManualDiscard) {
+            await fetch('/api/state', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reset: true }),
+            });
+        }
+
+        setNextParticipantId('');
+        fetchGroupData(selectedGroupId);
     };
 
     const getVerseRangeText = (q: any) => {
@@ -210,12 +210,9 @@ export default function JudgePage() {
     };
 
     const currentParticipant = participants.find(p => p.id === systemState?.currentParticipantId);
-
-    // The batch the participant chose (from system state)
     const currentStateBatch = systemState?.currentBatchNumber;
     const selectedByParticipant = batches.find(b => b.batchNumber === currentStateBatch);
 
-    // Auto-load the batch when participant selects it
     useEffect(() => {
         if (currentStateBatch && selectedByParticipant && activeBatch?.batchNumber !== currentStateBatch) {
             startJudging(selectedByParticipant);
@@ -224,14 +221,12 @@ export default function JudgePage() {
 
     if (loading) return <div className="min-h-screen flex items-center justify-center text-turquoise-400">Initializing Judge Portal...</div>;
 
-    // Audio URL: use first question's surah
     const firstQ = activeBatch?.questions?.[0];
     const audioUrl = firstQ ? surahDataMap[firstQ.surahNumber]?.audio?.['1']?.url : undefined;
 
     return (
         <main className="min-h-screen p-4 md:p-8 bg-turquoise-950/20">
             <div className="max-w-7xl mx-auto">
-                {/* Top Nav */}
                 <div className="flex items-center justify-between mb-8 glass-card px-6 py-4">
                     <div className="flex items-center gap-6">
                         <NextLink href="/" className="gold-text font-bold hover:scale-105 transition-all flex items-center gap-2">
@@ -253,9 +248,7 @@ export default function JudgePage() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    {/* Sidebar */}
                     <div className="lg:col-span-1 space-y-6">
-                        {/* Participant Turn Control */}
                         <div className="glass-card p-6">
                             <h2 className="flex items-center gap-2 text-white font-bold mb-6">
                                 <Users size={18} className="text-gold-400" /> Turn Control
@@ -279,7 +272,6 @@ export default function JudgePage() {
                                 <button onClick={setNextUp} className="w-full btn-gold py-2 text-sm flex items-center justify-center gap-2">
                                     <ChevronRight size={16} /> Set Active
                                 </button>
-
                                 {currentParticipant && (
                                     <div className="mt-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 animate-pulse">
                                         <p className="text-[10px] text-emerald-400 uppercase font-bold tracking-widest">Currently Live:</p>
@@ -292,7 +284,6 @@ export default function JudgePage() {
                             </div>
                         </div>
 
-                        {/* Batch List */}
                         <div className="glass-card p-6">
                             <h2 className="flex items-center gap-2 text-white font-bold mb-4">
                                 <RotateCcw size={18} className="text-gold-400" /> Batches
@@ -327,192 +318,111 @@ export default function JudgePage() {
                             </div>
                         </div>
                     </div>
-
                     {/* Main: judging area */}
                     <div className="lg:col-span-3">
                         {activeBatch ? (
-                            <div className="animate-slide-up space-y-6 pb-12">
-                                {/* Batch Header */}
-                                <div className="glass-card p-8 border-gold-500/20 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                        <BookOpen size={120} className="text-white" />
-                                    </div>
-
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div className="flex items-center justify-center bg-gold-500/20 rounded-xl w-16 h-16 border border-gold-500/30">
-                                                    <span className="text-3xl font-black text-gold-400">#{activeBatch.batchNumber}</span>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter">
-                                                        Batch {activeBatch.batchNumber}
-                                                    </h3>
-                                                    <p className="text-turquoise-400 text-xs font-bold">
-                                                        {activeBatch.questions.length} question{activeBatch.questions.length > 1 ? 's' : ''} •{' '}
-                                                        {activeParticipant ? activeParticipant.name : currentParticipant?.name || 'No participant active'}
-                                                    </p>
-                                                </div>
-                                            </div>
+                            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                                {/* Left Side: Quran Recitation */}
+                                <div className="xl:col-span-9 animate-slide-up space-y-6">
+                                    <div className="glass-card p-4 md:p-6 border-gold-500/20 relative overflow-hidden flex flex-col max-h-[88vh]">
+                                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                            <BookOpen size={120} className="text-white" />
                                         </div>
 
-                                        {/* Audio Player */}
-                                        {audioUrl && (
-                                            <div className="flex items-center gap-4 bg-white/5 rounded-2xl px-6 py-4 border border-white/10">
-                                                <button
-                                                    onClick={toggleAudio}
-                                                    className="w-12 h-12 rounded-full bg-gold-500 text-turquoise-950 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-gold-500/20"
-                                                >
-                                                    {isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-1" />}
-                                                </button>
-                                                <div>
-                                                    <p className="text-[10px] text-turquoise-500 font-bold uppercase tracking-widest mb-1">Recitation</p>
-                                                    <div className="flex items-center gap-2 text-white">
-                                                        <Volume2 size={14} className="text-gold-400" />
-                                                        <span className="text-xs font-bold">Surah {firstQ?.surahNumber}</span>
-                                                    </div>
+                                        <div className="flex items-center justify-between gap-6 mb-4 flex-shrink-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-gold-500/20 px-3 py-1 rounded-full border border-gold-500/30">
+                                                    <span className="text-xs font-black text-gold-400">Batch #{activeBatch.batchNumber}</span>
                                                 </div>
-                                                <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} className="hidden" />
+                                                <p className="text-turquoise-400 text-[10px] font-bold uppercase tracking-widest">
+                                                    {activeParticipant ? activeParticipant.name : currentParticipant?.name || 'No participant active'}
+                                                </p>
                                             </div>
-                                        )}
-                                    </div>
 
-                                    {/* Each question in the batch */}
-                                    <div className="space-y-6">
-                                        {activeBatch.questions.map((q: any, idx: number) => (
-                                            <div key={q.id} className={`rounded-2xl border p-6 ${idx === 0 ? 'border-gold-500/20 bg-gold-500/5' : 'border-turquoise-500/20 bg-turquoise-500/5'}`}>
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <span className="text-[10px] text-turquoise-500 font-black uppercase tracking-[0.3em]">Question {idx + 1}</span>
-                                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${q.difficulty === 'hard' ? 'bg-red-500/20 text-red-400' : q.difficulty === 'easy' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gold-500/20 text-gold-400'}`}>
-                                                        {q.difficulty}
-                                                    </span>
+                                            {/* Audio Player */}
+                                            {audioUrl && (
+                                                <div className="flex items-center gap-4 bg-white/5 rounded-2xl px-3 py-2 border border-white/10">
+                                                    <button
+                                                        onClick={toggleAudio}
+                                                        className="w-8 h-8 rounded-full bg-gold-500 text-turquoise-950 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-gold-500/20"
+                                                    >
+                                                        {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-1" />}
+                                                    </button>
+                                                    <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} className="hidden" />
                                                 </div>
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    <div>
-                                                        <p className="text-xl font-black text-white">{q.surah}</p>
-                                                        <p className="font-arabic text-gold-400 text-lg">{q.surahArabic}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Scrollable Quran Area */}
+                                        <div className="overflow-y-auto pr-2 md:pr-4 custom-scrollbar space-y-6 pb-4">
+                                            {activeBatch.questions.map((q: any, idx: number) => (
+                                                <div key={q.id} className={`rounded-2xl border p-4 md:p-6 ${idx === 0 ? 'border-gold-500/20 bg-gold-500/5' : 'border-turquoise-500/20 bg-turquoise-500/5'}`}>
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <span className="text-[10px] text-turquoise-500 font-black uppercase tracking-[0.3em]">Question {idx + 1}</span>
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${q.difficulty === 'hard' ? 'bg-red-500/20 text-red-400' : q.difficulty === 'easy' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gold-500/20 text-gold-400'}`}>
+                                                            {q.difficulty}
+                                                        </span>
                                                     </div>
-                                                    <div className="ml-auto">
-                                                        <div className="inline-block bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                                                            <p className="text-xs text-turquoise-400 font-black uppercase tracking-widest">
+                                                    <div className="flex items-center justify-between gap-4 mb-6">
+                                                        <div>
+                                                            <p className="text-2xl md:text-3xl font-black text-white">{q.surah}</p>
+                                                            <p className="font-arabic text-gold-400 text-lg md:text-xl mt-1">{q.surahArabic}</p>
+                                                        </div>
+                                                        <div className="inline-block bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                                            <p className="text-[10px] text-turquoise-400 font-black uppercase tracking-widest">
                                                                 Ayah {q.startAyah}–{q.endAyah}
                                                             </p>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                {/* Arabic Quranic text */}
-                                                {loadingQuran ? (
-                                                    <div className="flex items-center gap-3 py-6 justify-center">
-                                                        <Loader2 className="animate-spin text-gold-500" size={20} />
-                                                        <p className="text-turquoise-600 text-xs uppercase font-bold tracking-widest">Loading verses...</p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="max-w-4xl font-arabic text-2xl md:text-3xl text-white leading-[3] text-right dir-rtl space-y-6 border-t border-white/5 pt-6 mt-4">
-                                                        {getVerseRangeText(q).map((ayah: any) => (
-                                                            <div key={ayah.number} className="relative group inline">
-                                                                <span className="inline p-2 transition-all group-hover:bg-gold-500/10 rounded-xl leading-[3]">
-                                                                    {ayah.text}
-                                                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-gold-500/30 text-gold-500 text-xs font-mono mx-3 italic align-middle">
-                                                                        {ayah.number}
-                                                                    </span>
-                                                                </span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
+                                                    {loadingQuran ? (
+                                                        <div className="flex items-center gap-3 py-6 justify-center">
+                                                            <Loader2 className="animate-spin text-gold-500" size={20} />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="max-w-4xl font-arabic text-2xl md:text-3xl text-white leading-[1.8] text-right dir-rtl space-y-12 border-t border-white/5 pt-8 mt-4">
+                                                            {getVerseRangeText(q).map((ayah: any) => (
+                                                                <div key={ayah.number} className="relative group pb-8 border-b border-white/5 last:border-0 last:pb-0">
+                                                                    <div className="flex items-start gap-6 justify-end">
+                                                                        <span className="flex-1 transition-all group-hover:text-gold-100">
+                                                                            {ayah.text}
+                                                                        </span>
+                                                                        <span className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full border border-gold-500/30 text-gold-500 text-sm font-mono italic mt-2">
+                                                                            {ayah.number}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Judge Notes & Score */}
-                                <div className="glass-card p-8">
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                            {/* Points Input */}
-                                            <div className="md:col-span-1 border-r border-white/10 pr-6">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <FileText size={18} className="text-gold-400" />
-                                                    <label className="text-[10px] font-black text-turquoise-500 uppercase tracking-[0.2em]">
-                                                        Score / 100
-                                                    </label>
-                                                </div>
-                                                <input
-                                                    type="number"
-                                                    value={points}
-                                                    onChange={(e) => setPoints(e.target.value ? Number(e.target.value) : '')}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-3xl font-black text-center focus:outline-none focus:border-gold-500/50 transition-all placeholder:text-turquoise-900/50"
-                                                    placeholder="--"
-                                                    min="0"
-                                                    max="100"
-                                                />
-                                            </div>
+                                {/* Right Side: Scoring & Controls */}
+                                <div className="xl:col-span-3 space-y-6 sticky top-8">
+                                    <ScoringTable onTotalChange={(total) => setPoints(total)} />
 
-                                            {/* Notes Textarea */}
-                                            <div className="md:col-span-3">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <FileText size={18} className="text-gold-400" />
-                                                    <label className="text-[10px] font-black text-turquoise-500 uppercase tracking-[0.2em]">
-                                                        Judge's Notes — Batch #{activeBatch.batchNumber}{activeParticipant ? ` • ${activeParticipant.name}` : currentParticipant ? ` • ${currentParticipant.name}` : ''}
-                                                    </label>
-                                                </div>
-                                                <textarea
-                                                    value={notes}
-                                                    onChange={(e) => setNotes(e.target.value)}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white min-h-[150px] focus:outline-none focus:border-gold-500/50 transition-all text-sm leading-relaxed placeholder:text-turquoise-900 font-medium"
-                                                    placeholder="Document precision, tajweed rulings, breathing control, hesitations..."
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex gap-6">
-                                            <button
-                                                onClick={async () => {
-                                                    setActiveBatch(null);
-                                                    setNotes('');
-                                                    setPoints('');
-                                                    setIsPlaying(false);
-                                                    if (audioRef.current) audioRef.current.pause();
-
-                                                    // Clear local system state to immediately reset the UI
-                                                    setSystemState({
-                                                        id: 'default',
-                                                        currentGroupId: null,
-                                                        currentParticipantId: null,
-                                                        currentBatchNumber: null,
-                                                        status: 'inactive'
-                                                    });
-
-                                                    // Reset entire system state by deleting all rows
-                                                    await fetch('/api/state', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ reset: true }),
-                                                    });
-
-                                                    setNextParticipantId('');
-                                                    fetchGroupData(selectedGroupId);
-                                                }}
-                                                className="flex-1 py-5 rounded-2xl border border-turquoise-800 text-turquoise-600 font-black uppercase tracking-widest hover:bg-turquoise-950/40 hover:text-white transition-all text-xs"
-                                            >
-                                                Discard
-                                            </button>
-                                            <button
-                                                onClick={saveNotes}
-                                                disabled={saving}
-                                                className="flex-[3] py-5 rounded-2xl bg-gold-500 text-turquoise-950 font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-gold-500/20 flex items-center justify-center gap-4 text-sm"
-                                            >
-                                                {saving
-                                                    ? <Loader2 className="animate-spin" size={24} />
-                                                    : <><Save size={20} /> Save Notes &amp; Confirm Batch</>}
-                                            </button>
-                                        </div>
+                                    <div className="flex flex-col gap-3">
+                                        <button
+                                            onClick={() => handleDiscard(true)}
+                                            className="w-full py-3 rounded-2xl border border-turquoise-800 text-turquoise-600 font-black uppercase tracking-widest hover:bg-turquoise-950/40 hover:text-white transition-all text-[9px]"
+                                        >
+                                            Discard Session
+                                        </button>
+                                        <button
+                                            onClick={saveNotes}
+                                            disabled={saving}
+                                            className="w-full py-4 rounded-2xl bg-gold-500 text-turquoise-950 font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-gold-500/20 flex items-center justify-center gap-3 text-[10px]"
+                                        >
+                                            {saving ? <Loader2 className="animate-spin" size={18} /> : <><Save size={16} /> Save &amp; Finish</>}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            /* Empty state */
                             <div className="h-full min-h-[600px] flex flex-col items-center justify-center text-center p-20 glass-card border-dashed border-2 border-turquoise-500/20 opacity-40">
                                 <div className="p-8 rounded-full bg-turquoise-500/5 mb-8 border border-turquoise-500/10">
                                     <Layers size={80} className="text-turquoise-800" />
