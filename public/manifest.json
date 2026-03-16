@@ -1,6 +1,6 @@
 {
     "name": "OpenMusabaqah",
-    "short_name": "Musabaqah",
+    "short_name": "OpenMusabaqah",
     "description": "Quran Competition Management Platform",
     "start_url": "/",
     "display": "standalone",
