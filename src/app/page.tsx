@@ -1,67 +1,33 @@
 'use client';
+
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { ArrowRight, BookOpen, Building2, CalendarDays, Trophy, Users } from 'lucide-react';
 
 const portals = [
     {
-        href: '/participant',
-        label: 'Participants',
-        labelAr: 'المشاركون',
-        icon: (
-            <svg viewBox="0 0 64 64" className="w-16 h-16" fill="none">
-                <circle cx="32" cy="20" r="12" stroke="#fbbf24" strokeWidth="3" fill="rgba(251,191,36,0.1)" />
-                <path d="M12 52c0-11.046 8.954-20 20-20s20 8.954 20 20" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round" fill="none" />
-                <circle cx="48" cy="18" r="8" stroke="#14b8a6" strokeWidth="2" fill="rgba(20,184,166,0.1)" />
-                <path d="M56 38c0-6.627-3.582-12-8-12" stroke="#14b8a6" strokeWidth="2" strokeLinecap="round" fill="none" />
-            </svg>
-        ),
-        description: 'Select your question number',
-        color: 'from-turquoise-600/20 to-turquoise-800/20',
-        border: 'border-turquoise-500/40',
-        glow: 'hover:shadow-turquoise-500/25',
-        tag: 'bg-turquoise-500',
-    },
-    {
-        href: '/judge',
-        label: 'Judge',
-        labelAr: 'الحكم',
-        icon: (
-            <svg viewBox="0 0 64 64" className="w-16 h-16" fill="none">
-                <rect x="10" y="14" width="44" height="36" rx="4" stroke="#f59e0b" strokeWidth="3" fill="rgba(245,158,11,0.1)" />
-                <line x1="20" y1="26" x2="44" y2="26" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
-                <line x1="20" y1="34" x2="38" y2="34" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
-                <line x1="20" y1="42" x2="32" y2="42" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
-                <circle cx="52" cy="48" r="10" fill="#042f2e" stroke="#14b8a6" strokeWidth="2" />
-                <path d="M48 48l2.5 2.5L56 45" stroke="#14b8a6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        ),
-        description: 'View questions & score participants',
-        color: 'from-gold-600/20 to-gold-800/20',
-        border: 'border-gold-500/40',
-        glow: 'hover:shadow-gold-500/25',
-        tag: 'bg-gold-500',
-    },
-    {
         href: '/results',
-        label: 'Results',
-        labelAr: 'النتائج',
-        icon: (
-            <svg viewBox="0 0 64 64" className="w-16 h-16" fill="none">
-                <rect x="8" y="40" width="12" height="16" rx="2" fill="rgba(20,184,166,0.15)" stroke="#14b8a6" strokeWidth="2" />
-                <rect x="26" y="28" width="12" height="28" rx="2" fill="rgba(251,191,36,0.15)" stroke="#fbbf24" strokeWidth="2.5" />
-                <rect x="44" y="16" width="12" height="40" rx="2" fill="rgba(20,184,166,0.15)" stroke="#14b8a6" strokeWidth="2" />
-                <path d="M12 32l14-12 14 8 12-18" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="12" cy="32" r="3" fill="#fbbf24" />
-                <circle cx="26" cy="20" r="3" fill="#fbbf24" />
-                <circle cx="40" cy="28" r="3" fill="#fbbf24" />
-                <circle cx="52" cy="10" r="3" fill="#fbbf24" />
-            </svg>
-        ),
-        description: 'Live leaderboard & standings',
-        color: 'from-turquoise-700/20 to-gold-700/20',
-        border: 'border-gold-400/30',
-        glow: 'hover:shadow-gold-400/20',
-        tag: 'bg-gradient-to-r from-turquoise-500 to-gold-500',
+        title: 'Public competitions',
+        subtitle: 'المسابقات العامة',
+        description: 'Browse live leaderboards, register for a competition, or follow the stage.',
+        icon: <Trophy size={30} className="text-gold-400" />,
+        accent: 'border-gold-500/40 hover:shadow-gold-500/20',
+    },
+    {
+        href: '/login',
+        title: 'Judge portal',
+        subtitle: 'بوابة الحكام',
+        description: 'Sign in to score participants independently with your organization.',
+        icon: <Users size={30} className="text-turquoise-300" />,
+        accent: 'border-turquoise-500/40 hover:shadow-turquoise-500/20',
+    },
+    {
+        href: '/signup',
+        title: 'Organize a competition',
+        subtitle: 'نظّم مسابقتك',
+        description: 'Create your organization, invite judges, and manage registrations.',
+        icon: <Building2 size={30} className="text-gold-400" />,
+        accent: 'border-gold-400/30 hover:shadow-gold-400/20',
     },
 ];
 
@@ -76,114 +42,114 @@ export default function HomePage() {
     }, []);
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-between p-6 md:p-10">
-            {/* Header */}
-            <header className="w-full max-w-5xl flex items-center justify-between animate-fade-in relative">
+        <main className="flex min-h-screen flex-col items-center justify-between p-6 md:p-10">
+            <header className="relative flex w-full max-w-5xl animate-fade-in items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-turquoise-500 to-gold-500 flex items-center justify-center shadow-lg">
-                        <span className="text-white text-lg font-bold">م</span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-turquoise-500 to-gold-500 shadow-lg">
+                        <BookOpen size={20} className="text-white" />
                     </div>
                     <div>
-                        <p className="text-turquoise-300 text-xs font-medium uppercase tracking-widest leading-none">OpenMusabaqah</p>
-                        <p className="text-gold-400/70 text-[10px] font-arabic mt-1">مسابقة القرآن الكريم</p>
+                        <p className="text-xs font-medium uppercase leading-none tracking-widest text-turquoise-300">OpenMusabaqah</p>
+                        <p className="mt-1 text-[10px] text-gold-400/70">مسابقة القرآن الكريم</p>
                     </div>
                 </div>
 
-                {/* Bismillah Calligraphy */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-0 hidden md:block">
-                    <p className="font-arabic text-3xl text-gold-500/40 select-none">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                <div className="absolute left-1/2 top-0 hidden -translate-x-1/2 md:block">
+                    <p className="select-none text-3xl text-gold-500/40" style={{ fontFamily: 'Amiri, serif' }}>
+                        بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+                    </p>
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <Link href="/admin" className="text-[10px] uppercase tracking-widest text-turquoise-700 hover:text-turquoise-400 transition-colors bg-turquoise-900/20 px-2 py-1 rounded border border-turquoise-800/30">
-                        Admin
+                    <Link
+                        href="/login"
+                        className="rounded border border-turquoise-800/30 bg-turquoise-900/20 px-3 py-1.5 text-[10px] uppercase tracking-widest text-turquoise-300 transition-colors hover:text-gold-300"
+                    >
+                        Sign in
                     </Link>
                     <div className="text-right">
-                        <p className="text-turquoise-300 font-mono text-lg font-semibold leading-none">{time}</p>
-                        <p className="text-turquoise-600 text-[10px] mt-1">{new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+                        <p className="font-mono text-lg font-semibold leading-none text-turquoise-300">{time}</p>
+                        <p className="mt-1 text-[10px] text-turquoise-600">
+                            {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        </p>
                     </div>
                 </div>
             </header>
 
-            {/* Ornament */}
             <div className="ornament-divider w-full max-w-5xl" />
 
-            {/* Hero Section */}
-            <section className="flex-1 flex flex-col items-center justify-center gap-6 py-10 animate-slide-up text-center">
-                {/* Quran Icon */}
-                <div className="relative mb-2">
-                    <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-turquoise-600/30 to-gold-600/30 border border-gold-500/30 flex items-center justify-center shadow-2xl backdrop-blur-sm animate-pulse-gold">
-                        <svg viewBox="0 0 80 80" className="w-16 h-16" fill="none">
-                            <rect x="12" y="8" width="56" height="64" rx="6" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" strokeWidth="2" />
-                            <rect x="8" y="10" width="52" height="64" rx="6" fill="rgba(20,184,166,0.08)" stroke="#14b8a6" strokeWidth="1.5" />
-                            <line x1="20" y1="26" x2="52" y2="26" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                            <line x1="20" y1="34" x2="52" y2="34" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                            <line x1="20" y1="42" x2="44" y2="42" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                            <path d="M34 56l4-8 4 8" stroke="#14b8a6" strokeWidth="1.5" strokeLinecap="round" />
-                            <circle cx="38" cy="52" r="6" stroke="#14b8a6" strokeWidth="1.5" fill="none" />
-                        </svg>
+            <section className="flex flex-1 animate-slide-up flex-col items-center justify-center gap-8 py-10 text-center">
+                <div className="relative">
+                    <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl border border-gold-500/30 bg-gradient-to-br from-turquoise-600/30 to-gold-600/30 shadow-2xl backdrop-blur-sm">
+                        <BookOpen size={52} className="text-gold-400" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gold-500 flex items-center justify-center shadow-lg">
-                        <span className="text-xs text-gray-900 font-bold">✦</span>
+                    <div className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold-500 shadow-lg">
+                        <span className="text-xs font-bold text-gray-900">✦</span>
                     </div>
                 </div>
 
                 <div>
-                    <h1 className="text-5xl md:text-6xl font-bold mb-2">
+                    <h1 className="mb-2 text-5xl font-bold md:text-6xl">
                         <span className="gold-text">Open</span>
                         <span className="text-white">Musabaqah</span>
                     </h1>
-                    <p className="font-arabic text-2xl text-gold-400/80 mt-1">مسابقة القرآن الكريم</p>
-                    <p className="text-turquoise-300/70 text-lg mt-3 max-w-md">
-                        A real-time Quran competition platform for participants, judges, and audiences
+                    <p className="mt-1 text-2xl text-gold-400/80" style={{ fontFamily: 'Amiri, serif' }}>
+                        مسابقة القرآن الكريم
+                    </p>
+                    <p className="mx-auto mt-3 max-w-xl text-lg text-turquoise-300/70">
+                        Multi-organization Quran competition platform with independent judging, live leaderboards, and public
+                        registration.
                     </p>
                 </div>
 
-                {/* Portal Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mt-6">
-                    {portals.map((portal, i) => (
-                        <Link key={portal.href} href={portal.href}
-                            id={`portal-${portal.label.toLowerCase()}`}
-                            className={`group relative glass-card p-8 flex flex-col items-center gap-4 text-center
-                         bg-gradient-to-br ${portal.color} border ${portal.border}
-                         transition-all duration-300 hover:scale-105 hover:shadow-2xl ${portal.glow}
-                         animate-slide-up`}
-                            style={{ animationDelay: `${i * 0.1}s` }}
+                <div className="grid w-full max-w-5xl gap-5 md:grid-cols-3">
+                    {portals.map((portal, index) => (
+                        <Link
+                            key={portal.href}
+                            href={portal.href}
+                            className={`group relative flex flex-col items-center gap-4 rounded-2xl border bg-white/5 p-8 text-center backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl ${portal.accent} animate-slide-up`}
+                            style={{ animationDelay: `${index * 0.1}s` }}
                         >
-                            {/* Portal number badge */}
-                            <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                                <span className="text-xs text-turquoise-300 font-mono">{String(i + 1).padStart(2, '0')}</span>
+                            <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                                <span className="font-mono text-xs text-turquoise-300">{String(index + 1).padStart(2, '0')}</span>
                             </div>
-
-                            {/* Icon */}
-                            <div className="relative">
-                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent blur-xl" />
-                                {portal.icon}
-                            </div>
-
-                            {/* Labels */}
+                            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">{portal.icon}</div>
                             <div>
-                                <h2 className="text-2xl font-bold text-white group-hover:text-gold-300 transition-colors">{portal.label}</h2>
-                                <p className="font-arabic text-gold-400/60 text-sm mt-0.5">{portal.labelAr}</p>
+                                <h2 className="text-xl font-bold text-white transition-colors group-hover:text-gold-300">{portal.title}</h2>
+                                <p className="mt-0.5 text-sm text-gold-400/60" style={{ fontFamily: 'Amiri, serif' }}>
+                                    {portal.subtitle}
+                                </p>
                             </div>
-                            <p className="text-sm text-turquoise-300/70 group-hover:text-turquoise-200/90 transition-colors">{portal.description}</p>
-
-                            {/* Enter arrow */}
-                            <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-turquoise-400 group-hover:text-gold-400 transition-colors">
-                                <span>Enter</span>
-                                <span className="group-hover:translate-x-1 transition-transform">→</span>
-                            </div>
+                            <p className="text-sm text-turquoise-300/70 transition-colors group-hover:text-turquoise-200/90">
+                                {portal.description}
+                            </p>
+                            <span className="mt-1 flex items-center gap-2 text-xs font-semibold text-turquoise-400 transition-colors group-hover:text-gold-400">
+                                Continue <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                            </span>
                         </Link>
                     ))}
                 </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-turquoise-500">
+                    <span className="flex items-center gap-2">
+                        <CalendarDays size={14} /> Real-time stage updates
+                    </span>
+                    <span className="flex items-center gap-2">
+                        <Users size={14} /> Independent judge scoring
+                    </span>
+                    <span className="flex items-center gap-2">
+                        <Trophy size={14} /> Public, private, or hidden points
+                    </span>
+                </div>
             </section>
 
-            {/* Footer */}
             <footer className="w-full max-w-5xl text-center">
                 <div className="ornament-divider mb-4" />
-                <p className="text-turquoise-700 text-xs">
+                <p className="text-xs text-turquoise-700">
                     OpenMusabaqah • Quran Competition Platform •{' '}
-                    <span className="font-arabic text-gold-600">بسم الله الرحمن الرحيم</span>
+                    <span className="text-gold-600" style={{ fontFamily: 'Amiri, serif' }}>
+                        بسم الله الرحمن الرحيم
+                    </span>
                 </p>
             </footer>
         </main>

@@ -6,8 +6,14 @@
         "dev": "next dev --webpack",
         "build": "next build --webpack",
         "start": "next start",
-        "lint": "next lint",
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit",
+        "db:push": "prisma db push",
+        "db:seed": "prisma db seed",
         "postinstall": "prisma generate"
+    },
+    "prisma": {
+        "seed": "node prisma/seed.js"
     },
     "dependencies": {
         "@prisma/client": "^6.4.1",
