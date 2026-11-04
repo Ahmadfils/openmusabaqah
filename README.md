@@ -1,77 +1,74 @@
-# OpenMusabaqah - Quran Competition PWA
+# OpenMusabaqah
 
-OpenMusabaqah is a high-performance, real-time Progressive Web App (PWA) designed for organizing and judging Quran competitions. It features a stunning turquoise and gold aesthetic and provides separate portals for participants, judges, and administrators.
+Multi-organization Quran competition platform with independent judging, live stages, public registration, and configurable leaderboards.
 
-## Features
+## Highlights
 
-- **Real-time Synchronization**: Live updates between the Judge and Participant portals using a central session state.
-- **Bilingual Support**: Dynamic Quranic data with both English and Arabic Surah names.
-- **Quran API Integration**: 
-  - Dynamic Surah and Ayah selection (1-114 Surahs).
-  - Live pulling of Arabic Ayah text.
-  - Built-in audio recitations for judges.
-- **Admin Dashboard**: Full CRUD (Create, Read, Update, Delete) management for Groups, Participants, and Questions.
-- **Judge Interface**: interactive scoring with notes and real-time turn management.
-- **Premium Leaderboard**: Animated results page with champion badging and high-speed ranking.
-- **PWA Ready**: Installable on mobile and desktop devices for a native app experience.
+- **SaaS tenancy** — organizations register and manage their own competitions, judges, and participants.
+- **Independent judging** — each judge submits one score per participant; the turn completes when the last active judge submits and the average is computed.
+- **Public registration** — participants register with personal details and desired groups; admins approve or reject.
+- **Live stage** — participants select an available question batch; judges and audiences follow progress in near real time.
+- **Leaderboard privacy** — public, private, or hidden points (participants and participation visible, points and ranks hidden).
+- **Flexible scoring** — fixed point caps or weighted percentages out of 100.
+- **Judge access control** — custom/generated credentials, password resets, disable/enable with session revocation.
+- **PWA** — installable with manifest, icons, and a generated service worker.
 
-## Tech Stack
+## Roles
 
-- **Framework**: [Next.js 15+](https://nextjs.org/)
-- **Database**: PostgreSQL with [Prisma ORM](https://www.prisma.io/)
-- **Styling**: Tailwind CSS with custom premium components.
-- **API**: [Quran API](https://quranapi.pages.dev/) for dynamic religious content.
+| Role | Entry |
+| --- | --- |
+| Superadmin | `/superadmin` |
+| Organization admin | `/admin` |
+| Judge | `/judge` |
+| Public | `/results`, `/live/[slug]`, `/leaderboard/[slug]`, `/register/[slug]` |
 
-## Getting Started
+## Quick start
 
-### Prerequisites
+```bash
+npm install
+cp .env.example .env   # set DATABASE_URL, DIRECT_URL, AUTH_SECRET
+npm run db:push
+npm run db:seed
+npm run dev
+```
 
-- Node.js 18+
-- PostgreSQL database
+Seeded accounts:
 
-### Installation
+| Role | Username | Password |
+| --- | --- | --- |
+| Superadmin | `superadmin` | `SuperAdmin@123` |
+| Admin | `admin` | `Admin@123` |
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd OpenMusabaqah
-   ```
+Change the passwords after signing in.
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+## Stack
 
-3. **Environment Setup**:
-   Create a `.env` file in the root directory:
-   ```env
-   DATABASE_URL="postgresql://postgres:admin@localhost:5432/openmusabaqah?schema=public"
-   NEXT_PUBLIC_APP_URL="http://localhost:3000"
-   ```
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS · Prisma 6 · PostgreSQL
 
-4. **Database Setup**:
-   Run the following command to sync your database schema:
-   ```bash
-   npx prisma db push
-   npx prisma generate
-   ```
-   *(Optional: Use `src/lib/sqlscript.txt` for manual table creation if preferred)*
+## Documentation
 
-5. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
+Full project context is in [`/docs`](./docs/README.md):
 
-## Database Schema
+- [Architecture](./docs/architecture.md)
+- [Data model](./docs/data-model.md)
+- [Auth and security](./docs/auth-and-security.md)
+- [Product flows](./docs/flows.md)
+- [API reference](./docs/api-reference.md)
+- [Setup and seed](./docs/setup-and-seed.md)
+- [Decision records](./docs/decisions.md)
 
-The database consists of the following key models:
-- **Group**: Competition categories or sessions.
-- **Participant**: Contestants assigned to specific groups.
-- **Question**: Specific Quranic sections for recitation with points and bilingual details.
-- **Selection**: Tracks which participant has chosen which question.
-- **Score**: Detailed judging points and notes.
-- **SystemState**: Manages the "Live" state of the competition.
+## Scripts
+
+```bash
+npm run dev        # development server
+npm run build      # production build
+npm start          # production server
+npm run typecheck  # TypeScript check
+npm run lint       # Next lint
+npm run db:push    # sync Prisma schema
+npm run db:seed    # seed superadmin + admin
+```
 
 ## License
 
-This project is licensed under the MIT License.
+MIT

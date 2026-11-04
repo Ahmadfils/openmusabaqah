@@ -84,6 +84,36 @@ body {
     border-color: #fbbf24;
     box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
   }
+
+  .admin-input {
+    @apply w-full rounded-xl px-4 py-2.5 text-white transition-all focus:outline-none;
+    background-color: #064e3b;
+    border: 1px solid rgba(20, 184, 166, 0.2);
+  }
+
+  .admin-input:focus {
+    background-color: #065f46;
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+  }
+
+  .admin-input::placeholder {
+    color: rgba(20, 184, 166, 0.35);
+  }
+
+  .admin-label {
+    @apply block text-[10px] font-bold uppercase tracking-widest mb-1.5;
+    color: #14b8a6;
+  }
+
+  select.admin-input {
+    @apply appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f59e0b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2rem;
+    padding-right: 2.5rem;
+  }
 }
 
 .scrollbar-thin::-webkit-scrollbar {
