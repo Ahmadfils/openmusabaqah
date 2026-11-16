@@ -84,7 +84,7 @@ export default function HomePage() {
                         <span className="text-white text-lg font-bold">م</span>
                     </div>
                     <div>
-                        <p className="text-turquoise-300 text-xs font-medium uppercase tracking-widest leading-none">OpenMusabaqah</p>
+                        <p className="text-turquoise-300 text-xs font-medium uppercase tracking-widest leading-none">OpenMusabaqa</p>
                         <p className="text-gold-400/70 text-[10px] font-arabic mt-1">مسابقة القرآن الكريم</p>
                     </div>
                 </div>
