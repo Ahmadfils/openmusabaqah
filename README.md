@@ -13,8 +13,7 @@
   <a href="#architecture">Architecture</a> •
   <a href="#auth-flow--governance">Auth Flow</a> •
   <a href="#tech-stack">Tech Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="CHANGES_PLAN.md">Changes Plan</a>
+  <a href="#getting-started">Getting Started</a> 
 </p>
 
 ---
@@ -25,7 +24,7 @@
 
 ---
 
-## Key Deliverables & Features
+## Features
 
 ### 1. Public-Facing Web Portal (`/apps/web`)
 A modern, responsive landing page offering complete public engagement:
@@ -147,7 +146,7 @@ AUTH_SECRET="your-super-secret-jwt-key"
 
 # Transactional Email (Resend or SMTP)
 RESEND_API_KEY="re_123456789"
-EMAIL_FROM="noreply@openmusabaqa.org"
+EMAIL_FROM="noreply@openmusabaqa.com"
 
 # Bulk Email & Newsletter (Brevo)
 BREVO_API_KEY="xkeysib-123456789"
@@ -186,12 +185,6 @@ Open [http://localhost:3000](http://localhost:3000) to view the portal.
 │   └── lib/              # Prisma client, state management, utilities
 └── README.md
 ```
-
----
-
-## Roadmap
-
-Detailed execution milestones are tracked in [CHANGES_PLAN.md](CHANGES_PLAN.md).
 
 ---
 
