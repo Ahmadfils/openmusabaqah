@@ -1,7 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-
+// OpenMusabaqah – multi-tenant Quran competition platform
+// Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -13,69 +11,244 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  JUDGE
+}
+
+enum CompetitionStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum LeaderboardVisibility {
+  PUBLIC
+  PRIVATE
+  HIDDEN_POINTS
+}
+
+enum PointsMode {
+  FIXED
+  PERCENT
+}
+
+enum ParticipantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ParticipantSource {
+  ADMIN
+  PUBLIC_FORM
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  email       String   @unique
+  phone       String?
+  country     String?
+  city        String?
+  address     String?
+  isActive    Boolean  @default(true)
+  users       User[]
+  competitions Competition[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// organizationId is null only for SUPERADMIN accounts.
+model User {
+  id             String   @id @default(cuid())
+  username       String   @unique
+  passwordHash   String
+  role           UserRole @default(JUDGE)
+  displayName    String?
+  email          String?
+  phone          String?
+  isActive       Boolean  @default(true)
+  // Incremented on password reset / access revocation to invalidate old cookies.
+  sessionVersion Int      @default(0)
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  judgeAssignments JudgeAssignment[]
+  scores           JudgeScore[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([role])
+}
+
+model Competition {
+  id          String @id @default(cuid())
+  name        String
+  slug        String @unique
+  description String?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  status                CompetitionStatus     @default(DRAFT)
+  leaderboardVisibility LeaderboardVisibility @default(PUBLIC)
+  publicRegistration    Boolean               @default(false)
+  registrationOpen      Boolean               @default(true)
+
+  // FIXED: criteria point caps are summed. PERCENT: weighted criteria out of 100.
+  pointsMode      PointsMode @default(FIXED)
+  scoringCriteria Json? // [{ key, label, max, weight }]
+
+  // Presentation customisation
+  themeColor String?
+  logoUrl    String?
+
+  groups           Group[]
+  questions        Question[]
+  participants     Participant[]
+  judgeAssignments JudgeAssignment[]
+  scores           JudgeScore[]
+  liveState        LiveState?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model JudgeAssignment {
+  id            String      @id @default(cuid())
+  userId        String
+  competitionId String
+  isActive      Boolean     @default(true)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, competitionId])
+  @@index([competitionId])
+}
+
 model Group {
-  id           String        @id @default(cuid())
-  name         String        @unique
-  description  String?
+  id          String @id @default(cuid())
+  name        String
+  description String?
+
+  competitionId String
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
   participants Participant[]
   questions    Question[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([competitionId, name])
+  @@index([competitionId])
 }
 
 // A Question belongs to a batch (identified by `number`).
 // Multiple Questions can share the same `number` within a group — they form a batch.
 model Question {
-  id          String   @id @default(cuid())
-  number      Int      // Batch number (1-30 typically). Multiple questions can share this.
+  id          String  @id @default(cuid())
+  number      Int // Batch number
   surah       String
   surahArabic String?
   surahNumber Int
   startAyah   Int?
   endAyah     Int?
-  difficulty  String   @default("medium") // easy, medium, hard
-  isUsed      Boolean  @default(false)
+  difficulty  String  @default("medium") // easy, medium, hard
+  isUsed      Boolean @default(false)
 
   groupId String
-  group   Group  @relation(fields: [groupId], references: [id])
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  competitionId String
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([competitionId, groupId, number])
 }
 
 model Participant {
-  id         String  @id @default(cuid())
-  name       String
-  identifier String? @unique // e.g., seat number or registration ID
+  id          String @id @default(cuid())
+  name        String
+  identifier  String? // e.g. seat number or admin reference
+  registrationCode String @unique // public registration reference
 
-  groupId String
-  group   Group  @relation(fields: [groupId], references: [id])
+  age     Int?
+  country String?
+  city    String?
+  phone   String?
 
-  score Score?
+  // Groups picked by the participant on the public form.
+  desiredGroupIds String[] @default([])
+  // Group the participant is actually competing in (set by admin/judge).
+  groupId         String?
+  group           Group?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  // Assigned question batch (set by admin/judge).
+  batchNumber     Int?
+
+  status ParticipantStatus @default(APPROVED)
+  source ParticipantSource @default(ADMIN)
+
+  competitionId String
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  judgeScores JudgeScore[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([competitionId, identifier])
+  @@index([competitionId, groupId])
 }
 
-// Score is now both quantitative (points) and qualitative (notes).
-model Score {
-  id            String      @id @default(cuid())
-  participantId String      @unique
-  participant   Participant @relation(fields: [participantId], references: [id])
+// One row per judge per participant. Judges submit independently.
+model JudgeScore {
+  id            String @id @default(cuid())
+  participantId String
+  judgeId       String
+  competitionId String
 
-  points Float? // Numeric score
-  notes  String? // Free-text judge observations
+  batchNumber Int?
+  criteria    Json? // { criterionKey: value }
+  points      Float
+  notes       String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  judge       User        @relation(fields: [judgeId], references: [id], onDelete: Restrict)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([participantId, judgeId])
+  @@index([competitionId])
 }
 
-// Central real-time synchronisation state
-model SystemState {
-  id                   String   @id @default("default")
+// One live stage per competition.
+model LiveState {
+  competitionId String @id
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
   currentGroupId       String?
-  currentParticipantId String?  // Judge-activated participant
-  currentBatchNumber   Int?     // Batch number chosen by the participant (broadcasted to their screen)
-  status               String   @default("inactive") // inactive, waiting_batch, batch_selected, judging
-  updatedAt            DateTime @updatedAt
+  currentParticipantId String?
+  currentBatchNumber   Int?
+  // inactive | waiting_batch | batch_selected | judging | completed
+  status               String @default("inactive")
+
+  updatedAt DateTime @updatedAt
 }
