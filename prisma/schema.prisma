@@ -314,6 +314,7 @@ model CmsHero {
   secondaryCta  String?
   secondaryLink String?
   imageUrl      String?
+  whatsappUrl   String?
   updatedAt     DateTime @updatedAt
 }
 

@@ -19,17 +19,17 @@ export type CmsSectionMeta = {
 };
 
 export const CMS_SECTIONS: CmsSectionMeta[] = [
-    { key: 'hero', label: 'Hero & portals', order: 1, description: 'Headline, badge, calls to action and portal shortcuts.' },
-    { key: 'vision', label: 'Vision & milestones', order: 2, description: 'Mission statement and timeline of milestones.' },
-    { key: 'stats', label: 'Statistics', order: 3, description: 'Headline metrics displayed with animated counters.' },
-    { key: 'testimonials', label: 'Testimonials', order: 4, description: 'Quotes from judges, organizers and contestants.' },
-    { key: 'team', label: 'Team', order: 5, description: 'Founder profiles, roles and social links.' },
-    { key: 'gallery', label: 'Gallery', order: 6, description: 'Highlights from past competitions and ceremonies.' },
-    { key: 'partners', label: 'Partners & sponsors', order: 7, description: 'Partner logo wall with sponsorship tiers.' },
-    { key: 'cta', label: 'Call to action', order: 8, description: 'Sponsor and partner invitation block.' },
-    { key: 'newsletter', label: 'Newsletter', order: 9, description: 'Email capture synced with Brevo contact lists.' },
-    { key: 'competitions', label: 'Public competitions', order: 10, description: 'Live list of competitions published by verified organizations.' },
-    { key: 'leaderboards', label: 'Public leaderboards', order: 11, description: 'Top ranked reciters from public leaderboards.' },
+    { key: 'hero', label: 'Hero', order: 1, description: 'Headline, registration and WhatsApp buttons, and the platform preview.' },
+    { key: 'competitions', label: 'Public competitions', order: 2, description: 'Live list of competitions published by verified organizations.' },
+    { key: 'leaderboards', label: 'Public leaderboards', order: 3, description: 'Top ranked reciters from public leaderboards.' },
+    { key: 'vision', label: 'Vision & milestones', order: 4, description: 'Mission statement and timeline of milestones.' },
+    { key: 'stats', label: 'Statistics', order: 5, description: 'Headline metrics displayed with animated counters.' },
+    { key: 'testimonials', label: 'Testimonials', order: 6, description: 'Quotes from judges, organizers and contestants.' },
+    { key: 'team', label: 'Team', order: 7, description: 'Leadership profiles, roles and social links.' },
+    { key: 'gallery', label: 'Gallery', order: 8, description: 'Highlights from past competitions and ceremonies.' },
+    { key: 'partners', label: 'Partners & sponsors', order: 9, description: 'Partner logo wall with sponsorship tiers.' },
+    { key: 'cta', label: 'Call to action', order: 10, description: 'Sponsor and partner invitation block.' },
+    { key: 'newsletter', label: 'Newsletter', order: 11, description: 'Email capture synced with Brevo contact lists.' },
 ];
 
 export type CmsHeroContent = {
@@ -41,6 +41,7 @@ export type CmsHeroContent = {
     secondaryCta: string | null;
     secondaryLink: string | null;
     imageUrl: string | null;
+    whatsappUrl: string | null;
 };
 
 export type CmsCtaContent = {
@@ -110,6 +111,7 @@ export type CmsPartnerItem = {
 
 export type LandingContent = {
     sections: Record<string, boolean>;
+    sectionOrder: CmsSectionKey[];
     hero: CmsHeroContent;
     cta: CmsCtaContent;
     milestones: CmsMilestoneItem[];

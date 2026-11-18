@@ -19,11 +19,12 @@ const DEFAULT_HERO: CmsHeroContent = {
     title: 'Where Quran competitions meet modern technology',
     subtitle:
         'OpenMusabaqa gives organizations a complete workspace for independent judging, live stages, public registration and trustworthy leaderboards.',
-    primaryCta: 'Explore competitions',
-    primaryLink: '/results',
-    secondaryCta: 'Register your organization',
-    secondaryLink: '/signup',
+    primaryCta: 'Register organization',
+    primaryLink: '/signup',
+    secondaryCta: null,
+    secondaryLink: null,
     imageUrl: null,
+    whatsappUrl: null,
 };
 
 const DEFAULT_CTA: CmsCtaContent = {
@@ -129,6 +130,7 @@ const DEFAULT_PARTNERS: CmsPartnerItem[] = [
 
 export const DEFAULT_LANDING_CONTENT: LandingContent = {
     sections: Object.fromEntries(CMS_SECTIONS.map((section) => [section.key, true])),
+    sectionOrder: CMS_SECTIONS.map((section) => section.key),
     hero: DEFAULT_HERO,
     cta: DEFAULT_CTA,
     milestones: DEFAULT_MILESTONES,
@@ -160,18 +162,25 @@ export async function getLandingContent(): Promise<LandingContent> {
             if (section.key in sectionState) sectionState[section.key] = section.enabled;
         }
 
+        const orderByKey = new Map(sections.map((section) => [section.key, section.order]));
+        const sectionOrder = [...CMS_SECTIONS]
+            .sort((a, b) => (orderByKey.get(a.key) ?? a.order) - (orderByKey.get(b.key) ?? b.order))
+            .map((section) => section.key);
+
         return {
             sections: sectionState,
+            sectionOrder,
             hero: hero
                 ? {
                       badge: hero.badge,
                       title: hero.title,
                       subtitle: hero.subtitle,
                       primaryCta: hero.primaryCta,
-                      primaryLink: hero.primaryLink,
+                      primaryLink: hero.primaryLink === '#register' ? '/signup' : hero.primaryLink,
                       secondaryCta: hero.secondaryCta,
                       secondaryLink: hero.secondaryLink === '#register' ? '/signup' : hero.secondaryLink,
                       imageUrl: hero.imageUrl,
+                      whatsappUrl: hero.whatsappUrl,
                   }
                 : DEFAULT_HERO,
             cta: cta

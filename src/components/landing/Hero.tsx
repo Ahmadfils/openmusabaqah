@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Radio, Star, Trophy, Users } from 'lucide-react';
+import { ArrowRight, MessageCircle, Radio, Star, Trophy, Users } from 'lucide-react';
 import HeroShowcase from './HeroShowcase';
 import type { CmsHeroContent } from '@/lib/cms-types';
 
@@ -24,13 +24,15 @@ export default function Hero({ hero }: { hero: CmsHeroContent }) {
                         <Link href={hero.primaryLink} className="btn-gold flex items-center gap-2 px-6 py-3 text-sm">
                             {hero.primaryCta} <ArrowRight size={16} />
                         </Link>
-                        {hero.secondaryCta && hero.secondaryLink && (
-                            <Link
-                                href={hero.secondaryLink}
-                                className="flex items-center gap-2 rounded-xl border border-turquoise-500/40 bg-white/5 px-6 py-3 text-sm font-semibold text-turquoise-200 transition-colors hover:bg-turquoise-500/10"
+                        {hero.whatsappUrl && (
+                            <a
+                                href={hero.whatsappUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/20"
                             >
-                                {hero.secondaryCta}
-                            </Link>
+                                <MessageCircle size={16} /> Chat on WhatsApp
+                            </a>
                         )}
                     </div>
 
