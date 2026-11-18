@@ -107,7 +107,7 @@ const DEFAULT_TEAM: CmsTeamMemberItem[] = [
         name: 'Hussein BUTOYI',
         role: 'Chief Operating Officer (COO)',
         bio: 'Runs competition operations and supports organizations from onboarding through awards night.',
-        avatarUrl: '/gallery/coo.jpg',
+        avatarUrl: '/gallery/coo.png',
         twitter: null,
         linkedin: null,
         order: 3,
