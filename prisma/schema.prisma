@@ -47,19 +47,25 @@ enum ParticipantSource {
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  email       String   @unique
-  phone       String?
-  country     String?
-  city        String?
-  address     String?
-  isActive    Boolean  @default(true)
-  users       User[]
-  competitions Competition[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String                   @id @default(cuid())
+  name               String
+  slug               String                   @unique
+  email              String                   @unique
+  phone              String?
+  country            String?
+  city               String?
+  address            String?
+  logoUrl            String?
+  isActive           Boolean                  @default(true)
+  // Public self-registration starts unverified until the contact email is confirmed.
+  // Organizations created by a superadmin are trusted by default.
+  isVerified         Boolean                  @default(true)
+  verifiedAt         DateTime?
+  users              User[]
+  competitions       Competition[]
+  verificationTokens EmailVerificationToken[]
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
 }
 
 // organizationId is null only for SUPERADMIN accounts.
@@ -89,9 +95,9 @@ model User {
 }
 
 model Competition {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String @unique
+  slug        String  @unique
   description String?
 
   organizationId String
@@ -125,10 +131,10 @@ model Competition {
 }
 
 model JudgeAssignment {
-  id            String      @id @default(cuid())
+  id            String  @id @default(cuid())
   userId        String
   competitionId String
-  isActive      Boolean     @default(true)
+  isActive      Boolean @default(true)
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
@@ -140,7 +146,7 @@ model JudgeAssignment {
 }
 
 model Group {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
 
@@ -171,7 +177,7 @@ model Question {
   isUsed      Boolean @default(false)
 
   groupId String
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   competitionId String
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
@@ -183,10 +189,10 @@ model Question {
 }
 
 model Participant {
-  id          String @id @default(cuid())
-  name        String
-  identifier  String? // e.g. seat number or admin reference
-  registrationCode String @unique // public registration reference
+  id               String  @id @default(cuid())
+  name             String
+  identifier       String? // e.g. seat number or admin reference
+  registrationCode String  @unique // public registration reference
 
   age     Int?
   country String?
@@ -197,7 +203,7 @@ model Participant {
   desiredGroupIds String[] @default([])
   // Group the participant is actually competing in (set by admin/judge).
   groupId         String?
-  group           Group?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  group           Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
   // Assigned question batch (set by admin/judge).
   batchNumber     Int?
 
@@ -239,16 +245,167 @@ model JudgeScore {
   @@index([competitionId])
 }
 
+model EmailVerificationToken {
+  id             String       @id @default(cuid())
+  token          String       @unique
+  email          String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  source       String   @default("landing_page")
+  syncedBrevo  Boolean  @default(false)
+  subscribedAt DateTime @default(now())
+}
+
+enum EmailKind {
+  TRANSACTIONAL
+  BULK
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model EmailLog {
+  id          String      @id @default(cuid())
+  provider    String
+  kind        EmailKind
+  subject     String
+  recipients  Int         @default(1)
+  status      EmailStatus
+  detail      String?
+  createdById String?
+  createdAt   DateTime    @default(now())
+
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Landing page content management
+// ---------------------------------------------------------------------------
+
+// Enabled/order flags per landing section. Content lives in the models below.
+model CmsSection {
+  key       String   @id
+  label     String
+  enabled   Boolean  @default(true)
+  order     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model CmsHero {
+  id            String   @id @default("default")
+  badge         String?
+  title         String
+  subtitle      String
+  primaryCta    String
+  primaryLink   String
+  secondaryCta  String?
+  secondaryLink String?
+  imageUrl      String?
+  updatedAt     DateTime @updatedAt
+}
+
+model CmsCta {
+  id            String   @id @default("default")
+  title         String
+  description   String
+  primaryCta    String
+  primaryLink   String
+  secondaryCta  String?
+  secondaryLink String?
+  updatedAt     DateTime @updatedAt
+}
+
+model CmsMilestone {
+  id          String   @id @default(cuid())
+  year        String
+  title       String
+  description String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CmsStat {
+  id        String   @id @default(cuid())
+  label     String
+  value     String
+  suffix    String?
+  icon      String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsTestimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  avatarUrl String?
+  quote     String
+  rating    Int      @default(5)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsTeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  bio       String
+  avatarUrl String?
+  twitter   String?
+  linkedin  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsGalleryItem {
+  id        String   @id @default(cuid())
+  title     String
+  caption   String?
+  imageUrl  String
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsPartner {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  website   String?
+  tier      String   @default("partner")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // One live stage per competition.
 model LiveState {
-  competitionId String @id
+  competitionId String      @id
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
   currentGroupId       String?
   currentParticipantId String?
   currentBatchNumber   Int?
   // inactive | waiting_batch | batch_selected | judging | completed
-  status               String @default("inactive")
+  status               String  @default("inactive")
 
   updatedAt DateTime @updatedAt
 }

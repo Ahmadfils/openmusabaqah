@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { hashPassword, homeForRole, startSession } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth';
 import {
     handleRoute,
     HttpError,
@@ -12,6 +12,8 @@ import {
     validatePassword,
 } from '@/lib/http';
 import { uniqueOrganizationSlug, uniqueUsername } from '@/lib/identifiers';
+import { issueVerificationToken } from '@/lib/verification';
+import { sendVerificationEmail, shouldExposeDevLinks, verificationUrl } from '@/lib/email';
 
 function validateEmail(value: unknown): string {
     const email = requiredString(value, 'email', { max: 200 }).toLowerCase();
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
                         country,
                         city,
                         address,
+                        isVerified: false,
                     },
                 });
                 const admin = await tx.user.create({
@@ -75,21 +78,40 @@ export async function POST(request: Request) {
                 return { organization, admin };
             });
 
-            await startSession(result.admin);
-            return NextResponse.json({
-                organization: {
-                    id: result.organization.id,
-                    name: result.organization.name,
-                    slug: result.organization.slug,
+            let verificationSent = false;
+            let devVerificationLink: string | undefined;
+            try {
+                const token = await issueVerificationToken(result.organization);
+                const emailResult = await sendVerificationEmail({
+                    to: result.organization.email,
+                    organizationName: result.organization.name,
+                    token,
+                });
+                verificationSent = emailResult.ok && !emailResult.skipped;
+                if (shouldExposeDevLinks()) devVerificationLink = verificationUrl(token);
+            } catch (error) {
+                console.error('Unable to send organization verification email:', error);
+            }
+
+            return NextResponse.json(
+                {
+                    organization: {
+                        id: result.organization.id,
+                        name: result.organization.name,
+                        slug: result.organization.slug,
+                    },
+                    user: {
+                        id: result.admin.id,
+                        username: result.admin.username,
+                        role: result.admin.role,
+                        displayName: result.admin.displayName,
+                    },
+                    requiresVerification: true,
+                    verificationSent,
+                    verificationUrl: devVerificationLink,
                 },
-                user: {
-                    id: result.admin.id,
-                    username: result.admin.username,
-                    role: result.admin.role,
-                    displayName: result.admin.displayName,
-                },
-                redirectTo: homeForRole(result.admin.role),
-            });
+                { status: 201 },
+            );
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
                 throw new HttpError(409, 'Organization email or username already exists');

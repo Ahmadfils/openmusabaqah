@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Building2, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound } from 'lucide-react';
+import { Building2, CheckCircle2, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound } from 'lucide-react';
 
 export default function OrganizationSignupPage() {
-    const router = useRouter();
     const [form, setForm] = useState({
         organizationName: '',
         organizationEmail: '',
@@ -21,6 +19,7 @@ export default function OrganizationSignupPage() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState<{ email: string; sent: boolean; verificationUrl?: string } | null>(null);
 
     const update = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, [key]: event.target.value }));
@@ -42,8 +41,11 @@ export default function OrganizationSignupPage() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Unable to create the organization');
-            router.replace(data.redirectTo || '/admin');
-            router.refresh();
+            setSuccess({
+                email: form.organizationEmail,
+                sent: Boolean(data.verificationSent),
+                verificationUrl: data.verificationUrl,
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Unable to create the organization');
         } finally {
@@ -65,6 +67,36 @@ export default function OrganizationSignupPage() {
                 </Link>
 
                 <div className="glass-card p-8 md:p-10">
+                    {success ? (
+                        <div className="text-center">
+                            <CheckCircle2 className="mx-auto text-emerald-400" size={48} />
+                            <h1 className="mt-5 text-3xl font-black text-white">Organization created</h1>
+                            <p className="mx-auto mt-3 max-w-lg text-sm text-turquoise-400">
+                                We sent a verification link to <strong className="text-white">{success.email}</strong>. Confirm it to
+                                activate your workspace, then sign in with your admin username.
+                            </p>
+                            {!success.sent && (
+                                <p className="mx-auto mt-4 max-w-lg rounded-xl border border-gold-500/20 bg-gold-500/10 px-4 py-3 text-xs text-gold-200">
+                                    No email provider is configured, so the message was logged on the server. Use the development link
+                                    below or configure RESEND_API_KEY / SMTP.
+                                </p>
+                            )}
+                            {success.verificationUrl && (
+                                <Link href={success.verificationUrl} className="mt-4 block break-all rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-turquoise-300 hover:text-gold-300">
+                                    {success.verificationUrl}
+                                </Link>
+                            )}
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                                <Link href="/verify-email" className="btn-gold px-5 py-2.5 text-sm">
+                                    Verification help
+                                </Link>
+                                <Link href="/login" className="rounded-xl border border-white/10 px-5 py-2.5 text-sm text-turquoise-300 hover:text-white">
+                                    Go to sign in
+                                </Link>
+                            </div>
+                        </div>
+                    ) : (
+                    <>
                     <div className="mb-8">
                         <h1 className="text-3xl font-black text-white uppercase tracking-tight">Create your organization</h1>
                         <p className="text-turquoise-400 text-sm mt-2">
@@ -146,7 +178,7 @@ export default function OrganizationSignupPage() {
                         {error && <p className="text-sm text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">{error}</p>}
 
                         <button type="submit" disabled={loading} className="btn-gold w-full py-3 flex items-center justify-center gap-2">
-                            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create organization & sign in'}
+                            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create organization'}
                         </button>
                     </form>
 
@@ -154,6 +186,8 @@ export default function OrganizationSignupPage() {
                         Already have an account?{' '}
                         <Link href="/login" className="text-gold-400 hover:text-gold-300 font-semibold">Sign in</Link>
                     </p>
+                    </>
+                    )}
                 </div>
             </div>
         </main>

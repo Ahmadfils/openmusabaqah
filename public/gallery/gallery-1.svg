@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Opening ceremony illustration">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#042f2e"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="gold1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg1)"/>
+  <g fill="none" stroke="#14b8a6" stroke-opacity="0.18">
+    <path d="M0 100h800M0 200h800M0 300h800M0 400h800M0 500h800" stroke-width="1"/>
+    <path d="M100 0v600M200 0v600M300 0v600M400 0v600M500 0v600M600 0v600M700 0v600" stroke-width="1"/>
+  </g>
+  <path d="M230 470V250c0-94 76-170 170-170s170 76 170 170v220z" fill="#042f2e" stroke="url(#gold1)" stroke-width="8"/>
+  <path d="M270 470V260c0-72 58-130 130-130s130 58 130 130v210z" fill="none" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="3"/>
+  <g fill="url(#gold1)">
+    <circle cx="400" cy="190" r="10"/>
+    <path d="M400 70l10 24 26 3-19 18 5 26-22-13-22 13 5-26-19-18 26-3z"/>
+  </g>
+  <g fill="#5eead4" fill-opacity="0.75">
+    <circle cx="160" cy="160" r="6"/>
+    <circle cx="640" cy="140" r="5"/>
+    <circle cx="120" cy="360" r="4"/>
+    <circle cx="690" cy="330" r="7"/>
+  </g>
+  <path d="M190 470h420" stroke="url(#gold1)" stroke-width="10" stroke-linecap="round"/>
+</svg>

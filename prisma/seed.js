@@ -41,6 +41,7 @@ async function main() {
             name: 'OpenMusabaqa Demo',
             slug: 'openmusabaqah-demo',
             isActive: true,
+            isVerified: true,
         },
         create: {
             name: 'OpenMusabaqa Demo',
@@ -49,6 +50,7 @@ async function main() {
             phone: '+000000000',
             country: 'Local',
             city: 'Local',
+            isVerified: true,
         },
     });
 

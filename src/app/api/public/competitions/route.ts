@@ -6,8 +6,9 @@ export async function GET() {
     return handleRoute(async () => {
         const competitions = await prisma.competition.findMany({
             where: {
-                status: { in: ['DRAFT', 'ACTIVE', 'COMPLETED'] },
-                organization: { isActive: true },
+                status: { in: ['ACTIVE', 'COMPLETED'] },
+                leaderboardVisibility: { in: ['PUBLIC', 'HIDDEN_POINTS'] },
+                organization: { isActive: true, isVerified: true },
             },
             select: {
                 id: true,
