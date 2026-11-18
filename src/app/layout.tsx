@@ -2,17 +2,17 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-    title: 'OpenMusabaqah – Quran Competition',
-    description: 'A real-time Quran competition management platform for participants, judges, and results.',
+    title: 'OpenMusabaqa – Quran Competition Platform',
+    description: 'A modern, real-time Quran competition management platform for participants, judges, and administrators.',
     manifest: '/manifest.json',
     appleWebApp: {
         capable: true,
         statusBarStyle: 'black-translucent',
-        title: 'Musabaqah',
+        title: 'OpenMusabaqa',
     },
     openGraph: {
-        title: 'OpenMusabaqah – Quran Competition',
-        description: 'Real-time Quran competition platform',
+        title: 'OpenMusabaqa – Quran Competition Platform',
+        description: 'A modern, real-time Quran competition platform',
         type: 'website',
     },
 };

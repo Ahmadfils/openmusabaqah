@@ -49,8 +49,8 @@ export default function HomePage() {
                         <BookOpen size={20} className="text-white" />
                     </div>
                     <div>
-                        <p className="text-xs font-medium uppercase leading-none tracking-widest text-turquoise-300">OpenMusabaqah</p>
-                        <p className="mt-1 text-[10px] text-gold-400/70">مسابقة القرآن الكريم</p>
+                        <p className="text-turquoise-300 text-xs font-medium uppercase tracking-widest leading-none">OpenMusabaqa</p>
+                        <p className="text-gold-400/70 text-[10px] font-arabic mt-1">مسابقة القرآن الكريم</p>
                     </div>
                 </div>
 
