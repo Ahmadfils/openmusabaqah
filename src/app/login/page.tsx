@@ -71,7 +71,7 @@ export default function LoginPage() {
                         <BookOpen size={22} className="text-white" />
                     </div>
                     <div>
-                        <p className="gold-text text-2xl font-black">OpenMusabaqah</p>
+                        <p className="gold-text text-2xl font-black">OpenMusabaqa</p>
                         <p className="text-turquoise-500 text-[10px] uppercase tracking-[0.25em]">Competition platform</p>
                     </div>
                 </Link>

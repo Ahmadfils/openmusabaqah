@@ -146,7 +146,7 @@ export default function HomePage() {
             <footer className="w-full max-w-5xl text-center">
                 <div className="ornament-divider mb-4" />
                 <p className="text-xs text-turquoise-700">
-                    OpenMusabaqah • Quran Competition Platform •{' '}
+                    OpenMusabaqa • Quran Competition Platform •{' '}
                     <span className="text-gold-600" style={{ fontFamily: 'Amiri, serif' }}>
                         بسم الله الرحمن الرحيم
                     </span>

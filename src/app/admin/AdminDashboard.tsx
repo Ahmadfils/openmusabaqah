@@ -163,7 +163,7 @@ export default function AdminDashboard({
                 <header className="glass-card px-5 py-4 mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="flex items-center gap-2 gold-text font-black text-lg">
-                            <BookOpen size={20} /> OpenMusabaqah
+                            <BookOpen size={20} /> OpenMusabaqa
                         </Link>
                         <span className="hidden md:block h-6 w-px bg-white/10" />
                         <div>

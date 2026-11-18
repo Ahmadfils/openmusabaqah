@@ -40,10 +40,10 @@ export default function ResultsPage() {
                 </header>
 
                 <div className="text-center">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold-500">OpenMusabaqah</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold-500">OpenMusabaqa</p>
                     <h1 className="mt-2 text-4xl font-black text-white">Public competitions</h1>
                     <p className="mx-auto mt-3 max-w-xl text-sm text-turquoise-400">
-                        Follow live stages, check leaderboards, and register for competitions hosted by organizations on OpenMusabaqah.
+                        Follow live stages, check leaderboards, and register for competitions hosted by organizations on OpenMusabaqa.
                     </p>
                 </div>
 

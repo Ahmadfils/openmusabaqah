@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenMusabaqah is a single Next.js application that serves four audiences from one deployment:
+OpenMusabaqa is a single Next.js application that serves four audiences from one deployment:
 
 - public pages (competition discovery, live stage, leaderboards, registration)
 - organization admin dashboards

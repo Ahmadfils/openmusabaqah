@@ -16,7 +16,7 @@ function sessionSecret(): string {
     if (process.env.NODE_ENV === 'production') {
         throw new Error('AUTH_SECRET must be set to at least 16 characters in production');
     }
-    return 'openmusabaqah-development-secret-change-me';
+    return 'openmusabaqa-development-secret-change-me';
 }
 
 function signature(payload: string): string {
