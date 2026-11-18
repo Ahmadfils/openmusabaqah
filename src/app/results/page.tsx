@@ -1,153 +1,116 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import NextLink from 'next/link';
-import { Trophy, Medal, ChevronLeft, Loader2, Users, Star } from 'lucide-react';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { ArrowLeft, Eye, EyeOff, Loader2, Lock, Radio, Trophy, UserPlus } from 'lucide-react';
+
+const visibilityLabel: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
+    PUBLIC: { label: 'Public points', icon: <Eye size={12} />, className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' },
+    HIDDEN_POINTS: { label: 'Points hidden', icon: <EyeOff size={12} />, className: 'border-gold-500/30 bg-gold-500/10 text-gold-300' },
+    PRIVATE: { label: 'Members only', icon: <Lock size={12} />, className: 'border-red-500/30 bg-red-500/10 text-red-300' },
+};
 
 export default function ResultsPage() {
-    const [groups, setGroups] = useState<any[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<any>(null);
-    const [rankings, setRankings] = useState<any[]>([]);
+    const [competitions, setCompetitions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        fetchGroups();
+        fetch('/api/public/competitions', { credentials: 'same-origin' })
+            .then(async (res) => {
+                const payload = await res.json();
+                if (!res.ok) throw new Error(payload.error || 'Unable to load competitions');
+                return payload as any[];
+            })
+            .then(setCompetitions)
+            .catch((err) => setError(err instanceof Error ? err.message : 'Unable to load competitions'))
+            .finally(() => setLoading(false));
     }, []);
 
-    const fetchGroups = async () => {
-        try {
-            const res = await fetch('/api/admin/groups');
-            if (res.ok) setGroups(await res.json());
-        } catch (error) {
-            console.error('Failed to fetch groups:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchRankings = useCallback(async () => {
-        if (!selectedGroup) return;
-        try {
-            const res = await fetch(`/api/results?groupId=${selectedGroup.id}`);
-            if (res.ok) {
-                const data = await res.json();
-                // Sort by points descending, filtering those without scores if needed or just showing 0
-                setRankings(data); // already sorted by server
-            }
-        } catch (error) {
-            // Silently ignore polling errors
-            // console.error('Failed to fetch rankings:', error);
-        }
-    }, [selectedGroup]);
-
-    useEffect(() => {
-        if (selectedGroup) {
-            fetchRankings();
-            const interval = setInterval(fetchRankings, 5000);
-            return () => clearInterval(interval);
-        }
-    }, [selectedGroup, fetchRankings]);
-
-    if (loading) return (
-        <div className="min-h-screen flex flex-col items-center justify-center text-turquoise-400 gap-4">
-            <Loader2 className="animate-spin" size={40} />
-            <p className="font-bold tracking-widest uppercase text-xs">Loading Rankings...</p>
-        </div>
-    );
-
     return (
-        <main className="min-h-screen p-4 md:p-8 bg-turquoise-950/20">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-12 glass-card px-6 py-4">
-                    <NextLink href="/" className="gold-text font-bold hover:scale-105 transition-all flex items-center gap-2">
-                        <Trophy size={18} /> OpenMusabaqah
-                    </NextLink>
-                    {selectedGroup && (
-                        <button onClick={() => setSelectedGroup(null)} className="flex items-center gap-2 text-xs text-turquoise-500 hover:text-white transition-colors uppercase tracking-widest font-bold">
-                            <ChevronLeft size={14} /> Other Groups
-                        </button>
-                    )}
+        <main className="min-h-screen p-6 md:p-10">
+            <div className="mx-auto max-w-6xl space-y-8">
+                <header className="flex flex-wrap items-center justify-between gap-4">
+                    <Link href="/" className="flex items-center gap-2 text-sm text-turquoise-400 hover:text-gold-300">
+                        <ArrowLeft size={16} /> Home
+                    </Link>
+                    <Link href="/login" className="rounded-lg border border-white/10 px-3 py-1.5 text-xs uppercase tracking-widest text-turquoise-400 hover:bg-white/10">
+                        Sign in
+                    </Link>
+                </header>
+
+                <div className="text-center">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold-500">OpenMusabaqah</p>
+                    <h1 className="mt-2 text-4xl font-black text-white">Public competitions</h1>
+                    <p className="mx-auto mt-3 max-w-xl text-sm text-turquoise-400">
+                        Follow live stages, check leaderboards, and register for competitions hosted by organizations on OpenMusabaqah.
+                    </p>
                 </div>
 
-                {!selectedGroup ? (
-                    <div className="text-center animate-slide-up">
-                        <div className="mb-6 inline-block p-4 rounded-full bg-gold-500/10 border-2 border-gold-500/20">
-                            <Users size={64} className="text-gold-500" />
-                        </div>
-                        <h1 className="text-6xl font-black text-white mb-2 uppercase tracking-tighter">Leaderboards</h1>
-                        <p className="font-arabic text-gold-500/60 text-3xl mb-12">لوحات الصدارة</p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {groups.map(g => (
-                                <button key={g.id} onClick={() => setSelectedGroup(g)} className="glass-card p-12 hover:border-gold-500/50 transition-all group relative overflow-hidden">
-                                    <div className="absolute -bottom-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <Trophy size={140} />
-                                    </div>
-                                    <h2 className="text-3xl font-black text-white group-hover:text-gold-400 transition-colors uppercase tracking-tighter">{g.name}</h2>
-                                    <div className="mt-4 flex items-center justify-center gap-2 text-turquoise-600 font-bold uppercase text-[10px] tracking-[0.2em]">
-                                        View Rankings <Star size={10} className="fill-current" />
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <Loader2 className="animate-spin text-gold-500" size={32} />
+                    </div>
+                ) : error ? (
+                    <div className="glass-card p-8 text-center text-sm text-red-300">{error}</div>
+                ) : competitions.length === 0 ? (
+                    <div className="glass-card p-12 text-center">
+                        <Trophy size={36} className="mx-auto text-turquoise-700" />
+                        <p className="mt-4 text-white font-semibold">No public competitions yet</p>
+                        <p className="mt-2 text-sm text-turquoise-500">
+                            Organizations can publish a competition from the admin dashboard.
+                        </p>
                     </div>
                 ) : (
-                    <div className="animate-slide-up">
-                        <div className="text-center mb-16 relative">
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 blur-[120px] bg-gold-500/20 w-64 h-64 rounded-full" />
-                            <h1 className="text-5xl font-black text-white mb-2 uppercase tracking-tighter">{selectedGroup.name}</h1>
-                            <p className="font-arabic text-gold-500/70 text-2xl tracking-widest">نتائج المسابقة</p>
-                            <div className="ornament-divider max-w-xs mx-auto my-6 opacity-40" />
-                        </div>
+                    <div className="grid gap-5 md:grid-cols-2">
+                        {competitions.map((competition) => {
+                            const visibility = visibilityLabel[competition.leaderboardVisibility] || visibilityLabel.PUBLIC;
+                            return (
+                                <article key={competition.id} className="glass-card flex flex-col gap-4 p-6">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-turquoise-500">
+                                                {competition.organization?.name}
+                                            </p>
+                                            <h2 className="mt-1 text-2xl font-bold text-white">{competition.name}</h2>
+                                            <p className="mt-1 text-xs text-turquoise-400">
+                                                {competition._count?.groups ?? 0} groups · {competition._count?.participants ?? 0} participants
+                                            </p>
+                                        </div>
+                                        <span className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold uppercase ${visibility.className}`}>
+                                            {visibility.icon} {visibility.label}
+                                        </span>
+                                    </div>
 
-                        <div className="space-y-6 max-w-4xl mx-auto">
-                            {rankings.length === 0 ? (
-                                <div className="glass-card p-20 text-center text-turquoise-800 italic border-dashed border-2">
-                                    No records found for this group.
-                                </div>
-                            ) : (
-                                rankings.map((p, i) => {
-                                    const isTopThree = i < 3;
-                                    const colors = i === 0 ? 'text-gold-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-turquoise-700';
+                                    {competition.description && (
+                                        <p className="line-clamp-3 text-sm text-turquoise-300/80">{competition.description}</p>
+                                    )}
 
-                                    return (
-                                        <NextLink
-                                            key={p.id}
-                                            href={`/results/${p.id}`}
-                                            className={`glass-card p-6 flex flex-col md:flex-row items-center gap-8 border-l-8 transition-all hover:scale-[1.01] ${isTopThree ? 'border-gold-500 bg-gold-500/5' : 'border-turquoise-900 bg-white/5'}`}
+                                    <div className="mt-auto flex flex-wrap gap-2 pt-2">
+                                        <Link
+                                            href={`/leaderboard/${competition.slug}`}
+                                            className="btn-gold flex items-center gap-2 px-4 py-2 text-xs"
                                         >
-                                            <div className={`text-5xl font-black ${colors} w-16 text-center italic`}>
-                                                {i + 1}
-                                            </div>
-
-                                            <div className="flex-1 text-center md:text-left">
-                                                <div className="flex flex-col md:flex-row md:items-center gap-3">
-                                                    <h3 className="text-2xl font-black text-white tracking-tight uppercase">{p.name}</h3>
-                                                    {i === 0 && <span className="bg-gold-500 text-turquoise-950 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest inline-block w-fit mx-auto md:mx-0">Champion</span>}
-                                                </div>
-                                                <p className="text-turquoise-400/60 text-sm mt-2 italic font-medium leading-relaxed max-w-xl truncate">
-                                                    {p.score?.notes ? `"${p.score.notes}"` : "Results pending judge review..."}
-                                                </p>
-                                            </div>
-
-                                            <div className="flex-none text-right">
-                                                {p.score?.points !== null && p.score?.points !== undefined ? (
-                                                    <div>
-                                                        <span className="text-5xl font-black text-white">{p.score.points}</span>
-                                                        <span className="text-gold-500 font-bold ml-1">pts</span>
-                                                    </div>
-                                                ) : p.score?.notes ? (
-                                                    <span className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Reviewed</span>
-                                                ) : (
-                                                    <span className="bg-turquoise-900/40 text-turquoise-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Pending</span>
-                                                )}
-                                                <p className="text-[10px] text-turquoise-500 mt-2 hover:text-white uppercase tracking-widest font-bold">View Details →</p>
-                                            </div>
-                                        </NextLink>
-                                    );
-                                })
-                            )}
-                        </div>
+                                            <Trophy size={13} /> Leaderboard
+                                        </Link>
+                                        <Link
+                                            href={`/live/${competition.slug}`}
+                                            className="flex items-center gap-2 rounded-xl border border-turquoise-500/40 bg-turquoise-500/10 px-4 py-2 text-xs font-semibold text-turquoise-200 hover:bg-turquoise-500/20"
+                                        >
+                                            <Radio size={13} /> Live stage
+                                        </Link>
+                                        {competition.publicRegistration && competition.registrationOpen && (
+                                            <Link
+                                                href={`/register/${competition.slug}`}
+                                                className="flex items-center gap-2 rounded-xl border border-gold-500/30 px-4 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/10"
+                                            >
+                                                <UserPlus size={13} /> Register
+                                            </Link>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
                 )}
             </div>

@@ -1,96 +1,143 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import {
+    handleRoute,
+    HttpError,
+    optionalInt,
+    optionalString,
+    readJson,
+    requiredInt,
+    requiredString,
+} from '@/lib/http';
+import { requireCompetitionManager } from '@/lib/access';
 
-// GET /api/admin/questions?groupId=xxx
-export async function GET(request: Request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const groupId = searchParams.get('groupId');
+const DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
 
-        if (!groupId) {
-            return NextResponse.json({ error: 'groupId is required' }, { status: 400 });
-        }
+function difficulty(value: unknown): string {
+    if (value === undefined) return 'medium';
+    if (typeof value !== 'string' || !DIFFICULTIES.includes(value as (typeof DIFFICULTIES)[number])) {
+        throw new HttpError(400, 'difficulty must be easy, medium or hard');
+    }
+    return value;
+}
 
-        const questions = await prisma.question.findMany({
-            where: { groupId },
-            orderBy: [{ number: 'asc' }, { createdAt: 'asc' }],
-        });
-
-        return NextResponse.json(questions);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 });
+async function assertGroup(groupId: string, competitionId: string) {
+    const group = await prisma.group.findUnique({
+        where: { id: groupId },
+        select: { competitionId: true },
+    });
+    if (!group || group.competitionId !== competitionId) {
+        throw new HttpError(400, 'The selected group does not belong to this competition');
     }
 }
 
-// POST /api/admin/questions — Create a question (can share batch number with others)
+export async function GET(request: Request) {
+    return handleRoute(async () => {
+        const { searchParams } = new URL(request.url);
+        const competitionId = searchParams.get('competitionId');
+        const groupId = searchParams.get('groupId');
+        if (!competitionId) throw new HttpError(400, 'competitionId is required');
+        await requireCompetitionManager(competitionId);
+
+        const questions = await prisma.question.findMany({
+            where: { competitionId, ...(groupId ? { groupId } : {}) },
+            include: { group: { select: { id: true, name: true } } },
+            orderBy: [{ groupId: 'asc' }, { number: 'asc' }, { createdAt: 'asc' }],
+        });
+        return NextResponse.json(questions);
+    });
+}
+
 export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const {
-            number, surah, surahArabic, surahNumber,
-            startAyah, endAyah, difficulty, groupId
-        } = body;
+    return handleRoute(async () => {
+        const body = await readJson(request);
+        const competitionId = requiredString(body.competitionId, 'competitionId');
+        await requireCompetitionManager(competitionId);
+
+        const groupId = requiredString(body.groupId, 'groupId');
+        await assertGroup(groupId, competitionId);
+
+        const number = requiredInt(body.number, 'number', { min: 1, max: 999 });
+        const surah = requiredString(body.surah, 'surah', { max: 120 });
+        const surahArabic = optionalString(body.surahArabic, 'surahArabic', { max: 120 });
+        const surahNumber = requiredInt(body.surahNumber, 'surahNumber', { min: 1, max: 114 });
+        const startAyah = optionalInt(body.startAyah, 'startAyah', { min: 1, max: 286 });
+        const endAyah = optionalInt(body.endAyah, 'endAyah', { min: 1, max: 286 });
+        if (startAyah !== null && endAyah !== null && endAyah < startAyah) {
+            throw new HttpError(400, 'endAyah must be greater than or equal to startAyah');
+        }
 
         const question = await prisma.question.create({
             data: {
-                number: Number(number),
+                competitionId,
+                groupId,
+                number,
                 surah,
                 surahArabic,
-                surahNumber: Number(surahNumber),
-                startAyah: startAyah ? Number(startAyah) : null,
-                endAyah: endAyah ? Number(endAyah) : null,
-                difficulty: difficulty || 'medium',
-                groupId,
+                surahNumber,
+                startAyah,
+                endAyah,
+                difficulty: difficulty(body.difficulty),
             },
+            include: { group: { select: { id: true, name: true } } },
         });
-
-        return NextResponse.json(question);
-    } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to create question' }, { status: 500 });
-    }
+        return NextResponse.json(question, { status: 201 });
+    });
 }
 
-// PUT /api/admin/questions
 export async function PUT(request: Request) {
-    try {
-        const body = await request.json();
-        const {
-            id, number, surah, surahArabic, surahNumber,
-            startAyah, endAyah, difficulty
-        } = body;
+    return handleRoute(async () => {
+        const body = await readJson(request);
+        const id = requiredString(body.id, 'id');
+        const existing = await prisma.question.findUnique({
+            where: { id },
+            select: { competitionId: true },
+        });
+        if (!existing) throw new HttpError(404, 'Question not found');
+        await requireCompetitionManager(existing.competitionId);
+
+        const groupId = requiredString(body.groupId, 'groupId');
+        await assertGroup(groupId, existing.competitionId);
+
+        const startAyah = optionalInt(body.startAyah, 'startAyah', { min: 1, max: 286 });
+        const endAyah = optionalInt(body.endAyah, 'endAyah', { min: 1, max: 286 });
+        if (startAyah !== null && endAyah !== null && endAyah < startAyah) {
+            throw new HttpError(400, 'endAyah must be greater than or equal to startAyah');
+        }
 
         const question = await prisma.question.update({
             where: { id },
             data: {
-                number: Number(number),
-                surah,
-                surahArabic,
-                surahNumber: Number(surahNumber),
-                startAyah: startAyah ? Number(startAyah) : null,
-                endAyah: endAyah ? Number(endAyah) : null,
-                difficulty,
+                groupId,
+                number: requiredInt(body.number, 'number', { min: 1, max: 999 }),
+                surah: requiredString(body.surah, 'surah', { max: 120 }),
+                surahArabic: optionalString(body.surahArabic, 'surahArabic', { max: 120 }),
+                surahNumber: requiredInt(body.surahNumber, 'surahNumber', { min: 1, max: 114 }),
+                startAyah,
+                endAyah,
+                difficulty: difficulty(body.difficulty),
+                ...(typeof body.isUsed === 'boolean' ? { isUsed: body.isUsed } : {}),
             },
+            include: { group: { select: { id: true, name: true } } },
         });
-
         return NextResponse.json(question);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to update question' }, { status: 500 });
-    }
+    });
 }
 
-// DELETE /api/admin/questions?id=xxx
 export async function DELETE(request: Request) {
-    try {
+    return handleRoute(async () => {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
+        if (!id) throw new HttpError(400, 'id is required');
 
-        if (!id) {
-            return NextResponse.json({ error: 'id is required' }, { status: 400 });
-        }
+        const question = await prisma.question.findUnique({
+            where: { id },
+            select: { competitionId: true },
+        });
+        if (!question) throw new HttpError(404, 'Question not found');
+        await requireCompetitionManager(question.competitionId);
 
         await prisma.question.delete({ where: { id } });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 });
-    }
+        return NextResponse.json({ ok: true });
+    });
 }
