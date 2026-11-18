@@ -31,7 +31,7 @@ export function CompetitionsSection({ competitions }: { competitions: PublicComp
                     <p className="mx-auto mt-2 max-w-md text-sm text-turquoise-400">
                         Organizations are onboarding now. Register your organization to host the first competition in your community.
                     </p>
-                    <Link href="#register" className="btn-gold mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm">
+                    <Link href="/signup" className="btn-gold mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm">
                         <UserPlus size={15} /> Register organization
                     </Link>
                 </div>

@@ -9,8 +9,7 @@ export type CmsSectionKey =
     | 'cta'
     | 'newsletter'
     | 'competitions'
-    | 'leaderboards'
-    | 'registration';
+    | 'leaderboards';
 
 export type CmsSectionMeta = {
     key: CmsSectionKey;
@@ -31,7 +30,6 @@ export const CMS_SECTIONS: CmsSectionMeta[] = [
     { key: 'newsletter', label: 'Newsletter', order: 9, description: 'Email capture synced with Brevo contact lists.' },
     { key: 'competitions', label: 'Public competitions', order: 10, description: 'Live list of competitions published by verified organizations.' },
     { key: 'leaderboards', label: 'Public leaderboards', order: 11, description: 'Top ranked reciters from public leaderboards.' },
-    { key: 'registration', label: 'Organization registration', order: 12, description: 'Application form for organizations requesting a workspace.' },
 ];
 
 export type CmsHeroContent = {

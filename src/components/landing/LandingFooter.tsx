@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
-import { BookOpen, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function LandingFooter() {
     return (
@@ -8,9 +9,7 @@ export default function LandingFooter() {
                 <div className="flex flex-col justify-between gap-8 md:flex-row">
                     <div className="max-w-sm">
                         <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-turquoise-500 to-gold-500">
-                                <BookOpen size={17} className="text-white" />
-                            </span>
+                            <img src="/icons/openMusabaqa-logo.svg" alt="OpenMusabaqa logo" className="h-9 w-9 rounded-xl" />
                             <span className="text-sm font-black uppercase tracking-[0.18em] text-white">OpenMusabaqa</span>
                         </div>
                         <p className="mt-3 text-xs leading-relaxed text-turquoise-400">
@@ -58,9 +57,7 @@ export default function LandingFooter() {
 
                 <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[11px] text-turquoise-600 sm:flex-row">
                     <p>© {new Date().getFullYear()} OpenMusabaqa. All rights reserved.</p>
-                    <p className="font-arabic text-gold-600" style={{ fontFamily: 'Amiri, serif' }}>
-                        بسم الله الرحمن الرحيم
-                    </p>
+                    <p>Built for fair, dignified Quran competitions.</p>
                 </div>
             </div>
         </footer>

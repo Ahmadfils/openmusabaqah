@@ -15,14 +15,14 @@ import type {
 } from '@/lib/cms-types';
 
 const DEFAULT_HERO: CmsHeroContent = {
-    badge: 'بسم الله الرحمن الرحيم',
+    badge: null,
     title: 'Where Quran competitions meet modern technology',
     subtitle:
         'OpenMusabaqa gives organizations a complete workspace for independent judging, live stages, public registration and trustworthy leaderboards.',
     primaryCta: 'Explore competitions',
     primaryLink: '/results',
     secondaryCta: 'Register your organization',
-    secondaryLink: '#register',
+    secondaryLink: '/signup',
     imageUrl: null,
 };
 
@@ -31,7 +31,7 @@ const DEFAULT_CTA: CmsCtaContent = {
     description:
         'Sponsor a milestone, bring your institution on board, or co-host a competition. We work with mosques, academies, universities and foundations worldwide.',
     primaryCta: 'Become a partner',
-    primaryLink: '#register',
+    primaryLink: '/signup',
     secondaryCta: 'Talk to the team',
     secondaryLink: 'mailto:partners@openmusabaqa.org',
 };
@@ -83,30 +83,30 @@ const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
 const DEFAULT_TEAM: CmsTeamMemberItem[] = [
     {
         id: 'default-team-1',
-        name: 'Founder One',
-        role: 'Co-founder & Executive Director',
-        bio: 'Leads partnerships and the long-term vision for fair, accessible Quran competitions.',
-        avatarUrl: null,
+        name: 'Hassan BUKURU',
+        role: 'Chief Executive Officer (CEO)',
+        bio: 'Sets the strategic direction of OpenMusabaqa and leads partnerships with mosques, academies and foundations.',
+        avatarUrl: '/gallery/ceo.jpeg',
         twitter: null,
         linkedin: null,
         order: 1,
     },
     {
         id: 'default-team-2',
-        name: 'Founder Two',
-        role: 'Co-founder & Head of Product',
-        bio: 'Designs the judging, registration and live-stage workflows used by every organization.',
-        avatarUrl: null,
+        name: 'Ahmad Abbas',
+        role: 'Chief Technology Officer (CTO)',
+        bio: 'Architects the judging engine, live stage control and the public leaderboard infrastructure.',
+        avatarUrl: '/gallery/cto.jpeg',
         twitter: null,
         linkedin: null,
         order: 2,
     },
     {
         id: 'default-team-3',
-        name: 'Founder Three',
-        role: 'Co-founder & Head of Operations',
-        bio: 'Coordinates competitions on the ground and supports organizations through onboarding.',
-        avatarUrl: null,
+        name: 'Hussein BUTOYI',
+        role: 'Chief Operating Officer (COO)',
+        bio: 'Runs competition operations and supports organizations from onboarding through awards night.',
+        avatarUrl: '/gallery/coo.jpg',
         twitter: null,
         linkedin: null,
         order: 3,
@@ -170,7 +170,7 @@ export async function getLandingContent(): Promise<LandingContent> {
                       primaryCta: hero.primaryCta,
                       primaryLink: hero.primaryLink,
                       secondaryCta: hero.secondaryCta,
-                      secondaryLink: hero.secondaryLink,
+                      secondaryLink: hero.secondaryLink === '#register' ? '/signup' : hero.secondaryLink,
                       imageUrl: hero.imageUrl,
                   }
                 : DEFAULT_HERO,
@@ -179,7 +179,7 @@ export async function getLandingContent(): Promise<LandingContent> {
                       title: cta.title,
                       description: cta.description,
                       primaryCta: cta.primaryCta,
-                      primaryLink: cta.primaryLink,
+                      primaryLink: cta.primaryLink === '#register' ? '/signup' : cta.primaryLink,
                       secondaryCta: cta.secondaryCta,
                       secondaryLink: cta.secondaryLink,
                   }

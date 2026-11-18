@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
 import { useState } from 'react';
 import Link from 'next/link';
 import { Building2, CheckCircle2, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound } from 'lucide-react';
@@ -57,9 +58,11 @@ export default function OrganizationSignupPage() {
         <main className="min-h-screen flex items-center justify-center p-6 py-12">
             <div className="w-full max-w-3xl">
                 <Link href="/" className="flex items-center justify-center gap-3 mb-8 group">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-turquoise-500 to-gold-500 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                        <Building2 size={22} className="text-white" />
-                    </div>
+                    <img
+                        src="/icons/openMusabaqa-logo.svg"
+                        alt="OpenMusabaqa logo"
+                        className="w-12 h-12 rounded-2xl shadow-lg group-hover:scale-105 transition-transform"
+                    />
                     <div>
                         <p className="gold-text text-2xl font-black">OpenMusabaqa</p>
                         <p className="text-turquoise-500 text-[10px] uppercase tracking-[0.25em]">Organization onboarding</p>

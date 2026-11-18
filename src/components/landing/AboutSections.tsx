@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { BookOpen, Building2, Sparkles, Star, Trophy, Users } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import StatCounter from './StatCounter';
@@ -119,29 +120,42 @@ export function TeamSection({ team }: { team: CmsTeamMemberItem[] }) {
                 title="Three founders, one mission"
                 description="A small team with deep roots in Quran education, software engineering and competition operations."
             />
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
                 {team.map((member) => (
-                    <article key={member.id} className="glass-card flex h-full flex-col p-6">
-                        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-turquoise-600 to-gold-600 text-xl font-black text-white">
-                            {initials(member.name)}
-                        </span>
-                        <h3 className="mt-4 text-lg font-bold text-white">{member.name}</h3>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-gold-400">{member.role}</p>
-                        <p className="mt-3 flex-1 text-sm leading-relaxed text-turquoise-300/80">{member.bio}</p>
-                        {(member.twitter || member.linkedin) && (
-                            <div className="mt-4 flex gap-3 text-xs">
-                                {member.twitter && (
-                                    <a href={member.twitter} target="_blank" rel="noreferrer" className="text-turquoise-300 hover:text-gold-300">
-                                        Twitter / X
-                                    </a>
-                                )}
-                                {member.linkedin && (
-                                    <a href={member.linkedin} target="_blank" rel="noreferrer" className="text-turquoise-300 hover:text-gold-300">
-                                        LinkedIn
-                                    </a>
-                                )}
-                            </div>
-                        )}
+                    <article key={member.id} className="glass-card group flex h-full flex-col overflow-hidden">
+                        <div className="relative aspect-[4/5] w-full overflow-hidden bg-turquoise-900/40">
+                            {member.avatarUrl ? (
+                                <img
+                                    src={member.avatarUrl}
+                                    alt={member.name}
+                                    className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                />
+                            ) : (
+                                <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-turquoise-600 to-gold-600 text-5xl font-black text-white">
+                                    {initials(member.name)}
+                                </span>
+                            )}
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#021a18] to-transparent" />
+                        </div>
+                        <div className="flex flex-1 flex-col p-6">
+                            <h3 className="text-xl font-black text-white">{member.name}</h3>
+                            <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-gold-400">{member.role}</p>
+                            <p className="mt-3 flex-1 text-sm leading-relaxed text-turquoise-300/80">{member.bio}</p>
+                            {(member.twitter || member.linkedin) && (
+                                <div className="mt-4 flex gap-3 text-xs">
+                                    {member.twitter && (
+                                        <a href={member.twitter} target="_blank" rel="noreferrer" className="text-turquoise-300 hover:text-gold-300">
+                                            Twitter / X
+                                        </a>
+                                    )}
+                                    {member.linkedin && (
+                                        <a href={member.linkedin} target="_blank" rel="noreferrer" className="text-turquoise-300 hover:text-gold-300">
+                                            LinkedIn
+                                        </a>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </article>
                 ))}
             </div>

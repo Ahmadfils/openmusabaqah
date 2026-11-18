@@ -6,8 +6,8 @@ import { StatsSection, TeamSection, TestimonialsSection, VisionSection } from '@
 import { CtaSection, GallerySection, PartnersSection } from '@/components/landing/ShowcaseSections';
 import { CompetitionsSection, LeaderboardsSection } from '@/components/landing/DirectorySections';
 import NewsletterSection from '@/components/landing/NewsletterSection';
-import RegistrationSection from '@/components/landing/RegistrationSection';
 import LandingFooter from '@/components/landing/LandingFooter';
+import BackToTop from '@/components/landing/BackToTop';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +23,8 @@ export default async function HomePage() {
         <main className="min-h-screen">
             <LandingHeader />
             {sections.hero && <Hero hero={content.hero} />}
+            {sections.competitions && <CompetitionsSection competitions={competitions} />}
+            {sections.leaderboards && <LeaderboardsSection previews={leaderboards} />}
             {sections.vision && <VisionSection milestones={content.milestones} />}
             {sections.stats && <StatsSection stats={content.stats} />}
             {sections.testimonials && <TestimonialsSection testimonials={content.testimonials} />}
@@ -31,10 +33,8 @@ export default async function HomePage() {
             {sections.partners && <PartnersSection partners={content.partners} />}
             {sections.cta && <CtaSection cta={content.cta} />}
             {sections.newsletter && <NewsletterSection />}
-            {sections.competitions && <CompetitionsSection competitions={competitions} />}
-            {sections.leaderboards && <LeaderboardsSection previews={leaderboards} />}
-            {sections.registration && <RegistrationSection />}
             <LandingFooter />
+            <BackToTop />
         </main>
     );
 }
