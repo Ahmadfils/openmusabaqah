@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, Loader2, LogOut, Plus, Power, ShieldCheck, X } from 'lucide-react';
+import { Building2, LayoutTemplate, Loader2, LogOut, Plus, Power, ShieldCheck, X } from 'lucide-react';
 import { errorMessage, post, put } from '@/lib/client-api';
+import CmsEditor from './CmsEditor';
 
 const emptyForm = {
     organizationName: '',
@@ -20,6 +21,7 @@ const emptyForm = {
 
 export default function SuperAdminConsole({ user }: { user: { username: string; displayName: string | null } }) {
     const router = useRouter();
+    const [view, setView] = useState<'organizations' | 'cms'>('organizations');
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState('');
@@ -105,7 +107,7 @@ export default function SuperAdminConsole({ user }: { user: { username: string; 
                         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-gold-500">
                             <ShieldCheck size={14} /> Superadmin
                         </p>
-                        <h1 className="mt-1 text-2xl font-black text-white">Organizations</h1>
+                        <h1 className="mt-1 text-2xl font-black text-white">{view === 'cms' ? 'Landing page CMS' : 'Organizations'}</h1>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="text-right">
@@ -121,6 +123,31 @@ export default function SuperAdminConsole({ user }: { user: { username: string; 
                     </div>
                 </header>
 
+                <nav className="flex gap-2">
+                    <button
+                        onClick={() => setView('organizations')}
+                        className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                            view === 'organizations'
+                                ? 'border-gold-500/50 bg-gold-500/15 text-gold-200'
+                                : 'border-white/10 text-turquoise-400 hover:border-white/20 hover:text-white'
+                        }`}
+                    >
+                        <Building2 size={15} /> Organizations
+                    </button>
+                    <button
+                        onClick={() => setView('cms')}
+                        className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                            view === 'cms'
+                                ? 'border-gold-500/50 bg-gold-500/15 text-gold-200'
+                                : 'border-white/10 text-turquoise-400 hover:border-white/20 hover:text-white'
+                        }`}
+                    >
+                        <LayoutTemplate size={15} /> Landing page CMS
+                    </button>
+                </nav>
+
+                {view === 'organizations' && (
+                    <>
                 {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
                 {notice && <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{notice}</div>}
 
@@ -228,6 +255,10 @@ export default function SuperAdminConsole({ user }: { user: { username: string; 
                         ))}
                     </div>
                 )}
+                    </>
+                )}
+
+                {view === 'cms' && <CmsEditor />}
             </div>
         </main>
     );
