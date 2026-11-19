@@ -12,6 +12,7 @@ export type PublicCompetitionCard = {
     leaderboardVisibility: string;
     publicRegistration: boolean;
     registrationOpen: boolean;
+    publicLiveStage: boolean;
     organizationName: string;
     groups: number;
     participants: number;
@@ -43,6 +44,7 @@ export async function getPublicCompetitions(limit = 6): Promise<PublicCompetitio
                 leaderboardVisibility: true,
                 publicRegistration: true,
                 registrationOpen: true,
+                publicLiveStage: true,
                 organization: { select: { name: true } },
                 _count: { select: { groups: true, participants: true } },
             },
@@ -59,6 +61,7 @@ export async function getPublicCompetitions(limit = 6): Promise<PublicCompetitio
             leaderboardVisibility: competition.leaderboardVisibility,
             publicRegistration: competition.publicRegistration,
             registrationOpen: competition.registrationOpen,
+            publicLiveStage: competition.publicLiveStage,
             organizationName: competition.organization.name,
             groups: competition._count.groups,
             participants: competition._count.participants,

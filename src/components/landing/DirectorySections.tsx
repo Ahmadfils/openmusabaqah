@@ -32,7 +32,7 @@ export function CompetitionsSection({ competitions }: { competitions: PublicComp
                         Organizations are onboarding now. Register your organization to host the first competition in your community.
                     </p>
                     <Link href="/signup" className="btn-gold mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm">
-                        <UserPlus size={15} /> Register organization
+                        <UserPlus size={15} /> Start Musabaqa
                     </Link>
                 </div>
             ) : (
@@ -60,12 +60,14 @@ export function CompetitionsSection({ competitions }: { competitions: PublicComp
                                     <Link href={`/leaderboard/${competition.slug}`} className="btn-gold flex items-center gap-1.5 px-4 py-2 text-xs">
                                         <Trophy size={13} /> Leaderboard
                                     </Link>
-                                    <Link
-                                        href={`/live/${competition.slug}`}
-                                        className="flex items-center gap-1.5 rounded-xl border border-turquoise-500/40 bg-turquoise-500/10 px-4 py-2 text-xs font-semibold text-turquoise-200 hover:bg-turquoise-500/20"
-                                    >
-                                        <Radio size={13} /> Live stage
-                                    </Link>
+                                    {competition.publicLiveStage && (
+                                        <Link
+                                            href={`/live/${competition.slug}`}
+                                            className="flex items-center gap-1.5 rounded-xl border border-turquoise-500/40 bg-turquoise-500/10 px-4 py-2 text-xs font-semibold text-turquoise-200 hover:bg-turquoise-500/20"
+                                        >
+                                            <Radio size={13} /> Live stage
+                                        </Link>
+                                    )}
                                     {competition.publicRegistration && competition.registrationOpen && (
                                         <Link
                                             href={`/register/${competition.slug}`}

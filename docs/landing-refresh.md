@@ -8,10 +8,13 @@ Branch: `feat/landing-page`
 - **Brand mark** now uses `public/icons/openMusabaqa-logo.svg` in the landing header, footer, `/login` and `/signup`.
 - **Organization registration removed from the home page.** The form lives at `/signup`, sign-in at `/login`. Every former `#register` link and CMS-stored value now points to `/signup`. The `registration` CMS section key was removed.
 - **Section order is CMS-driven.** The superadmin Landing page CMS stores each section's order; the home page renders sections in that order and hides disabled sections.
-- **Hero has two buttons only**: registration (`/signup`) and WhatsApp. The WhatsApp link is stored in `CmsHero.whatsappUrl` and edited in Superadmin → Landing page CMS → Hero. It is currently set to the temporary `https://wa.me/` placeholder.
+- **Hero has two buttons only**: Start Musabaqa (`/signup`) and WhatsApp. The WhatsApp link is stored in `CmsHero.whatsappUrl` and edited in Superadmin → Landing page CMS → Hero. It is currently set to the temporary `https://wa.me/` placeholder.
+- **Hero preview icons**: floating trophy, verified, judging and community badges sit around the screenshot carousel, with Verified / Live suite chips on top of the images.
+- **Social links**: the footer includes LinkedIn, Facebook, TikTok and Instagram icons. They currently point to the platform homepages and should be replaced with the official profile URLs.
+- **Public live stage is configurable per competition** (`Competition.publicLiveStage`). The admin settings tab toggles it; when disabled the Live stage button is hidden on the landing and results cards and the public live API returns 404.
 - **Hero portals replaced** with an auto-rotating showcase of `public/gallery/Capture-musabaq-1.PNG`, `-2.PNG`, `-4.PNG` (cross-fade, dot controls, pauses on hover, skips auto-play under `prefers-reduced-motion`).
 - **Back-to-top** floating button appears after ~480px of scroll.
-- **Team portraits** are stored in the `CmsTeamMember` table: Hassan BUKURU (CEO, `ceo.jpeg`), Ahmad Abbas (CTO, `cto.jpeg`), Hussein BUTOYI (COO, `coo.png`). Portraits render full card width (4:5) above the role and bio. The fallback uses the same portrait files.
+- **Team portraits** are stored in the `CmsTeamMember` table: Hassan BUKURU (Executive Director, `ceo.jpeg`), Ahmad Abbas (Head of Products, `cto.jpeg`), Hussein BUTOYI (Head of Operations, `coo.png`). Portraits render full card width (4:5) above the role and bio. The fallback uses the same portrait files.
 
 ## Context / caveats
 

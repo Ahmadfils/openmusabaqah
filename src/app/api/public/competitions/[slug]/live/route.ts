@@ -12,12 +12,13 @@ async function livePayload(slug: string) {
             slug: true,
             status: true,
             leaderboardVisibility: true,
+            publicLiveStage: true,
             organization: { select: { name: true, isActive: true } },
             groups: { select: { id: true, name: true }, orderBy: { createdAt: 'asc' } },
             liveState: true,
         },
     });
-    if (!competition || !competition.organization.isActive) throw new HttpError(404, 'Competition not found');
+    if (!competition || !competition.organization.isActive || !competition.publicLiveStage) throw new HttpError(404, 'Competition not found');
 
     const state = competition.liveState;
     const judgeCount = await activeJudgeCount(competition.id);
@@ -102,11 +103,12 @@ export async function POST(request: Request, context: { params: Promise<{ slug: 
             select: {
                 id: true,
                 status: true,
+                publicLiveStage: true,
                 organization: { select: { isActive: true } },
                 liveState: true,
             },
         });
-        if (!competition || !competition.organization.isActive) {
+        if (!competition || !competition.organization.isActive || !competition.publicLiveStage) {
             throw new HttpError(404, 'Competition not found');
         }
         if (competition.status === 'COMPLETED' || competition.status === 'ARCHIVED') {

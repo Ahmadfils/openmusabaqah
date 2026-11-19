@@ -1,6 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
-import { Mail } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail } from 'lucide-react';
+
+const socialLinks = [
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/', Icon: Linkedin },
+    { label: 'Facebook', href: 'https://www.facebook.com/', Icon: Facebook },
+    { label: 'TikTok', href: 'https://www.tiktok.com/', Icon: TikTokIcon },
+    { label: 'Instagram', href: 'https://www.instagram.com/', Icon: Instagram },
+];
+
+function TikTokIcon({ size = 16 }: { size?: number }) {
+    return (
+        <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.3 0 .58.05.85.13V9.4a6.33 6.33 0 0 0-.85-.05A6.34 6.34 0 0 0 5.1 20.1a6.34 6.34 0 0 0 10.86-4.43V8.01a8.16 8.16 0 0 0 4.77 1.52V6.1a4.85 4.85 0 0 1-1.14.59z" />
+        </svg>
+    );
+}
 
 export default function LandingFooter() {
     return (
@@ -16,6 +31,23 @@ export default function LandingFooter() {
                             A multi-organization platform for Quran competitions: independent judging, live stages, public registration and
                             verified leaderboards.
                         </p>
+                        <div className="mt-5">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500">Follow us</p>
+                            <div className="mt-2 flex items-center gap-2">
+                                {socialLinks.map(({ label, href, Icon }) => (
+                                    <a
+                                        key={label}
+                                        href={href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label={`OpenMusabaqa on ${label}`}
+                                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-turquoise-300 transition-colors hover:border-gold-500/40 hover:text-gold-300"
+                                    >
+                                        <Icon size={16} />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-8 text-xs sm:grid-cols-3">
@@ -31,7 +63,7 @@ export default function LandingFooter() {
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500">Organizations</p>
                             <ul className="mt-3 space-y-2 text-turquoise-300">
-                                <li><Link href="/signup" className="hover:text-gold-300">Register</Link></li>
+                                <li><Link href="/signup" className="hover:text-gold-300">Start Musabaqa</Link></li>
                                 <li><Link href="/login" className="hover:text-gold-300">Sign in</Link></li>
                                 <li><Link href="/admin" className="hover:text-gold-300">Admin console</Link></li>
                                 <li><Link href="/superadmin" className="hover:text-gold-300">Platform console</Link></li>

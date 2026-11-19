@@ -123,12 +123,14 @@ export default function RegisterPage() {
                             <Link href={`/leaderboard/${slug}`} className="btn-gold px-5 py-2 text-sm">
                                 View leaderboard
                             </Link>
-                            <Link
-                                href={`/live/${slug}`}
-                                className="rounded-xl border border-turquoise-500/30 px-5 py-2 text-sm font-semibold text-turquoise-300 hover:bg-turquoise-500/10"
-                            >
-                                Live stage
-                            </Link>
+                            {competition?.publicLiveStage && (
+                                <Link
+                                    href={`/live/${slug}`}
+                                    className="rounded-xl border border-turquoise-500/30 px-5 py-2 text-sm font-semibold text-turquoise-300 hover:bg-turquoise-500/10"
+                                >
+                                    Live stage
+                                </Link>
+                            )}
                         </div>
                     </div>
                 ) : (

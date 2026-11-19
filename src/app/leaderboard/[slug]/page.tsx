@@ -54,12 +54,14 @@ export default function LeaderboardPage() {
                         <ArrowLeft size={16} /> All competitions
                     </Link>
                     <div className="flex items-center gap-2">
-                        <Link
-                            href={`/live/${slug}`}
-                            className="flex items-center gap-2 rounded-lg border border-turquoise-500/30 px-3 py-1.5 text-xs text-turquoise-300 hover:bg-turquoise-500/10"
-                        >
-                            <Radio size={13} /> Live stage
-                        </Link>
+                        {competition?.publicLiveStage && (
+                            <Link
+                                href={`/live/${slug}`}
+                                className="flex items-center gap-2 rounded-lg border border-turquoise-500/30 px-3 py-1.5 text-xs text-turquoise-300 hover:bg-turquoise-500/10"
+                            >
+                                <Radio size={13} /> Live stage
+                            </Link>
+                        )}
                         {competition?.publicRegistration && competition?.registrationOpen && (
                             <Link
                                 href={`/register/${slug}`}

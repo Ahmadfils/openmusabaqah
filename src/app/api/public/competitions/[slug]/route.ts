@@ -17,6 +17,7 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
                 leaderboardVisibility: true,
                 publicRegistration: true,
                 registrationOpen: true,
+                publicLiveStage: true,
                 themeColor: true,
                 logoUrl: true,
                 organization: { select: { name: true, city: true, country: true, isActive: true } },

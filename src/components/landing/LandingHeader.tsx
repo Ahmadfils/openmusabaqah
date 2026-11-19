@@ -39,8 +39,8 @@ export default function LandingHeader() {
                         <LogIn size={13} /> <span className="hidden sm:inline">Sign in</span>
                     </Link>
                     <Link href="/signup" className="btn-gold flex items-center gap-1.5 px-3 py-2 text-xs">
-                        <UserPlus size={13} /> <span className="hidden sm:inline">Register organization</span>
-                        <span className="sm:hidden">Register</span>
+                        <UserPlus size={13} /> <span className="hidden sm:inline">Start Musabaqa</span>
+                        <span className="sm:hidden">Start</span>
                     </Link>
                 </div>
             </div>

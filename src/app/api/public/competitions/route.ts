@@ -19,6 +19,7 @@ export async function GET() {
                 leaderboardVisibility: true,
                 publicRegistration: true,
                 registrationOpen: true,
+                publicLiveStage: true,
                 themeColor: true,
                 logoUrl: true,
                 organization: { select: { name: true } },

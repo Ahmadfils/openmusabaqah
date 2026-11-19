@@ -43,6 +43,7 @@ module.exports = {
                 'slide-up': 'slideUp 0.4s ease-out',
                 'pulse-gold': 'pulseGold 2s ease-in-out infinite',
                 'marquee': 'marquee 20s linear infinite',
+                'float': 'float 6s ease-in-out infinite',
             },
             keyframes: {
                 fadeIn: {
@@ -60,6 +61,10 @@ module.exports = {
                 marquee: {
                     '0%': { transform: 'translateX(100%)' },
                     '100%': { transform: 'translateX(-100%)' },
+                },
+                float: {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-8px)' },
                 },
             },
         },

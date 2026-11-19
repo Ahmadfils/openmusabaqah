@@ -19,7 +19,7 @@ const DEFAULT_HERO: CmsHeroContent = {
     title: 'Where Quran competitions meet modern technology',
     subtitle:
         'OpenMusabaqa gives organizations a complete workspace for independent judging, live stages, public registration and trustworthy leaderboards.',
-    primaryCta: 'Register organization',
+    primaryCta: 'Start Musabaqa',
     primaryLink: '/signup',
     secondaryCta: null,
     secondaryLink: null,
@@ -85,7 +85,7 @@ const DEFAULT_TEAM: CmsTeamMemberItem[] = [
     {
         id: 'default-team-1',
         name: 'Hassan BUKURU',
-        role: 'Chief Executive Officer (CEO)',
+        role: 'Executive Director',
         bio: 'Sets the strategic direction of OpenMusabaqa and leads partnerships with mosques, academies and foundations.',
         avatarUrl: '/gallery/ceo.jpeg',
         twitter: null,
@@ -95,8 +95,8 @@ const DEFAULT_TEAM: CmsTeamMemberItem[] = [
     {
         id: 'default-team-2',
         name: 'Ahmad Abbas',
-        role: 'Chief Technology Officer (CTO)',
-        bio: 'Architects the judging engine, live stage control and the public leaderboard infrastructure.',
+        role: 'Head of Products',
+        bio: 'Architects the whole platform, aligns the product roadmap across teams and leads the company’s quality standards.',
         avatarUrl: '/gallery/cto.jpeg',
         twitter: null,
         linkedin: null,
@@ -105,8 +105,8 @@ const DEFAULT_TEAM: CmsTeamMemberItem[] = [
     {
         id: 'default-team-3',
         name: 'Hussein BUTOYI',
-        role: 'Chief Operating Officer (COO)',
-        bio: 'Runs competition operations and supports organizations from onboarding through awards night.',
+        role: 'Head of Operations',
+        bio: 'Leads the quality and success of partnerships, organizations and competitions, and helps shape the company’s vision.',
         avatarUrl: '/gallery/coo.png',
         twitter: null,
         linkedin: null,
