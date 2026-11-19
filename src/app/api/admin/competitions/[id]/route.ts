@@ -83,7 +83,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
         }
         if (body.pointsMode !== undefined) data.pointsMode = parseEnum(body.pointsMode, POINTS_MODES, 'pointsMode');
 
-        for (const field of ['publicRegistration', 'registrationOpen'] as const) {
+        for (const field of ['publicRegistration', 'registrationOpen', 'publicLiveStage'] as const) {
             if (body[field] !== undefined) {
                 if (typeof body[field] !== 'boolean') throw new HttpError(400, `${field} must be a boolean`);
                 data[field] = body[field];

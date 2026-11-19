@@ -21,6 +21,7 @@ export default function SettingsTab({
         leaderboardVisibility: competition.leaderboardVisibility,
         publicRegistration: competition.publicRegistration,
         registrationOpen: competition.registrationOpen,
+        publicLiveStage: competition.publicLiveStage,
         pointsMode: competition.pointsMode,
         themeColor: competition.themeColor || '#14b8a6',
         logoUrl: competition.logoUrl || '',
@@ -40,6 +41,7 @@ export default function SettingsTab({
             leaderboardVisibility: competition.leaderboardVisibility,
             publicRegistration: competition.publicRegistration,
             registrationOpen: competition.registrationOpen,
+            publicLiveStage: competition.publicLiveStage,
             pointsMode: competition.pointsMode,
             themeColor: competition.themeColor || '#14b8a6',
             logoUrl: competition.logoUrl || '',
@@ -155,6 +157,10 @@ export default function SettingsTab({
                         <label className="flex items-center gap-3 text-sm text-white">
                             <input type="checkbox" checked={form.registrationOpen} onChange={(event) => setForm({ ...form, registrationOpen: event.target.checked })} className="accent-gold-500 w-4 h-4" />
                             Registration currently open
+                        </label>
+                        <label className="flex items-center gap-3 text-sm text-white">
+                            <input type="checkbox" checked={form.publicLiveStage} onChange={(event) => setForm({ ...form, publicLiveStage: event.target.checked })} className="accent-gold-500 w-4 h-4" />
+                            Show public live stage
                         </label>
                     </div>
                 </div>

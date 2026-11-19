@@ -34,8 +34,8 @@ const TABS: { key: EditorKey; label: string }[] = [
 const HERO_FIELDS: FieldDef[] = [
     { key: 'title', label: 'Headline', wide: true },
     { key: 'subtitle', label: 'Subtitle', type: 'textarea', wide: true },
-    { key: 'primaryCta', label: 'Registration button label' },
-    { key: 'primaryLink', label: 'Registration button link', placeholder: '/signup' },
+    { key: 'primaryCta', label: 'Start Musabaqa button label' },
+    { key: 'primaryLink', label: 'Start Musabaqa button link', placeholder: '/signup' },
     { key: 'whatsappUrl', label: 'WhatsApp link (leave empty to hide the button)', wide: true, placeholder: 'https://wa.me/253...' },
 ];
 
