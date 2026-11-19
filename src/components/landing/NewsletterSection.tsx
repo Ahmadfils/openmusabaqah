@@ -36,7 +36,7 @@ export default function NewsletterSection() {
                 <SectionHeading
                     eyebrow="Newsletter"
                     title="Competition updates, once a month"
-                    description="New competitions, registration windows and platform releases. No spam, unsubscribe at any time. Subscribers are synced to our Brevo list."
+                    description="New competitions, registration windows and platform releases. No spam, unsubscribe at any time."
                 />
 
                 <form onSubmit={submit} className="glass-card p-5">

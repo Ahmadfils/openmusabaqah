@@ -65,8 +65,6 @@ export default function LandingFooter() {
                             <ul className="mt-3 space-y-2 text-turquoise-300">
                                 <li><Link href="/signup" className="hover:text-gold-300">Start Musabaqa</Link></li>
                                 <li><Link href="/login" className="hover:text-gold-300">Sign in</Link></li>
-                                <li><Link href="/admin" className="hover:text-gold-300">Admin console</Link></li>
-                                <li><Link href="/superadmin" className="hover:text-gold-300">Platform console</Link></li>
                             </ul>
                         </div>
                         <div>

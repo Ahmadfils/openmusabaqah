@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from 'react';
 import Link from 'next/link';
-import { Building2, CheckCircle2, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound } from 'lucide-react';
+import { Building2, CheckCircle2, Loader2, LockKeyhole, Mail, MapPin, Phone, UserRound, ArrowLeft } from 'lucide-react';
 
 export default function OrganizationSignupPage() {
     const [form, setForm] = useState({
@@ -20,7 +20,7 @@ export default function OrganizationSignupPage() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState<{ email: string; sent: boolean; verificationUrl?: string } | null>(null);
+    const [success, setSuccess] = useState<{ email: string; sent: boolean; username?: string; verificationUrl?: string } | null>(null);
 
     const update = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, [key]: event.target.value }));
@@ -45,6 +45,7 @@ export default function OrganizationSignupPage() {
             setSuccess({
                 email: form.organizationEmail,
                 sent: Boolean(data.verificationSent),
+                username: data.user?.username,
                 verificationUrl: data.verificationUrl,
             });
         } catch (err) {
@@ -76,12 +77,17 @@ export default function OrganizationSignupPage() {
                             <h1 className="mt-5 text-3xl font-black text-white">Organization created</h1>
                             <p className="mx-auto mt-3 max-w-lg text-sm text-turquoise-400">
                                 We sent a verification link to <strong className="text-white">{success.email}</strong>. Confirm it to
-                                activate your workspace, then sign in with your admin username.
+                                activate your workspace, then sign in{' '}
+                                {success.username ? (
+                                    <>with your admin username <strong className="text-white">{success.username}</strong>.</>
+                                ) : (
+                                    'with your admin username.'
+                                )}
                             </p>
                             {!success.sent && (
                                 <p className="mx-auto mt-4 max-w-lg rounded-xl border border-gold-500/20 bg-gold-500/10 px-4 py-3 text-xs text-gold-200">
-                                    No email provider is configured, so the message was logged on the server. Use the development link
-                                    below or configure RESEND_API_KEY / SMTP.
+                                    We could not send the verification email automatically. Use the link below or contact support if it
+                                    does not arrive.
                                 </p>
                             )}
                             {success.verificationUrl && (
@@ -129,7 +135,7 @@ export default function OrganizationSignupPage() {
                                     <label className="admin-label">Phone</label>
                                     <div className="relative">
                                         <Phone size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-turquoise-500" />
-                                        <input value={form.organizationPhone} onChange={update('organizationPhone')} className="admin-input pl-11" placeholder="+253 ..." />
+                                        <input value={form.organizationPhone} onChange={update('organizationPhone')} className="admin-input pl-11" placeholder="+257 79 123 456" />
                                     </div>
                                 </div>
                                 <div>
@@ -192,6 +198,10 @@ export default function OrganizationSignupPage() {
                     </>
                     )}
                 </div>
+
+                <Link href="/" className="mt-6 flex items-center justify-center gap-2 text-xs text-turquoise-500 hover:text-gold-300">
+                    <ArrowLeft size={13} /> Back to home
+                </Link>
             </div>
         </main>
     );

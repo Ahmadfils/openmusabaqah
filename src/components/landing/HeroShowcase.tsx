@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
-import { Gavel, ShieldCheck, Sparkles, Trophy, Users } from 'lucide-react';
+import { Gavel, ShieldCheck, Trophy } from 'lucide-react';
 
 const slides = [
     { src: '/gallery/Capture-musabaq-1.PNG', alt: 'OpenMusabaqa platform preview 1' },
@@ -33,28 +33,6 @@ export default function HeroShowcase() {
             <div className="pointer-events-none absolute -left-10 -top-8 h-40 w-40 rounded-full bg-turquoise-500/20 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-10 -right-8 h-44 w-44 rounded-full bg-gold-500/20 blur-3xl" />
 
-            <div className="pointer-events-none absolute -left-5 top-20 z-20 hidden h-12 w-12 animate-float items-center justify-center rounded-2xl border border-gold-500/40 bg-[#042f2e]/90 text-gold-300 shadow-lg shadow-black/30 backdrop-blur sm:flex">
-                <Trophy size={20} />
-            </div>
-            <div
-                className="pointer-events-none absolute -right-4 top-10 z-20 hidden h-12 w-12 animate-float items-center justify-center rounded-2xl border border-emerald-500/40 bg-[#042f2e]/90 text-emerald-300 shadow-lg shadow-black/30 backdrop-blur sm:flex"
-                style={{ animationDelay: '1.2s' }}
-            >
-                <ShieldCheck size={20} />
-            </div>
-            <div
-                className="pointer-events-none absolute -left-4 bottom-20 z-20 hidden h-12 w-12 animate-float items-center justify-center rounded-2xl border border-turquoise-500/40 bg-[#042f2e]/90 text-turquoise-200 shadow-lg shadow-black/30 backdrop-blur sm:flex"
-                style={{ animationDelay: '2.1s' }}
-            >
-                <Gavel size={20} />
-            </div>
-            <div
-                className="pointer-events-none absolute -right-5 bottom-10 z-20 hidden h-12 w-12 animate-float items-center justify-center rounded-2xl border border-gold-500/40 bg-[#042f2e]/90 text-gold-300 shadow-lg shadow-black/30 backdrop-blur sm:flex"
-                style={{ animationDelay: '0.6s' }}
-            >
-                <Users size={20} />
-            </div>
-
             <div className="relative overflow-hidden rounded-2xl border border-turquoise-500/25 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur-md">
                 <div className="flex items-center gap-1.5 border-b border-white/10 bg-[#032624]/90 px-4 py-2.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
@@ -64,14 +42,6 @@ export default function HeroShowcase() {
                 </div>
 
                 <div className="relative aspect-[1366/604] bg-[#021a18]">
-                    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between p-3">
-                        <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-[#021a18]/75 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200 backdrop-blur">
-                            <ShieldCheck size={11} /> Verified
-                        </span>
-                        <span className="flex items-center gap-1.5 rounded-full border border-gold-400/30 bg-[#021a18]/75 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-gold-200 backdrop-blur">
-                            <Sparkles size={11} /> Live suite
-                        </span>
-                    </div>
                     {slides.map((slide, index) => (
                         <img
                             key={slide.src}
@@ -86,7 +56,25 @@ export default function HeroShowcase() {
                 </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                    {[
+                        { Icon: Gavel, label: 'Independent judging' },
+                        { Icon: ShieldCheck, label: 'Verified results' },
+                        { Icon: Trophy, label: 'Live rankings' },
+                    ].map(({ Icon, label }) => (
+                        <span
+                            key={label}
+                            className="flex items-center gap-1.5 rounded-full border border-turquoise-500/20 bg-turquoise-500/5 px-2.5 py-1 text-[10px] font-semibold text-turquoise-200"
+                        >
+                            <Icon size={12} /> {label}
+                        </span>
+                    ))}
+                </div>
+                <p className="text-[11px] leading-relaxed text-turquoise-500">Built for fair, dignified Quran competitions.</p>
+            </div>
+
+            <div className="mt-3 flex items-center justify-center gap-2">
                 {slides.map((slide, index) => (
                     <button
                         key={slide.src}
