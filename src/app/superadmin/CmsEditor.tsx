@@ -77,7 +77,7 @@ const LIST_FIELDS: Record<ListKey, FieldDef[]> = {
     ],
     gallery: [
         { key: 'title', label: 'Title' },
-        { key: 'imageUrl', label: 'Image URL', placeholder: '/gallery/gallery-1.svg' },
+        { key: 'imageUrl', label: 'Image URL', placeholder: '/gallery/musabaqa-1.jpeg' },
         { key: 'caption', label: 'Caption', type: 'textarea', wide: true },
         { key: 'featured', label: 'Featured (large tile)', type: 'checkbox' },
     ],

@@ -37,10 +37,6 @@ export function GallerySection({ items }: { items: CmsGalleryItem[] }) {
                                 <ImageIcon size={32} />
                             </span>
                         )}
-                        <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#021a18] via-[#021a18]/70 to-transparent p-4">
-                            <p className="text-sm font-bold text-white">{item.title}</p>
-                            {item.caption && <p className="mt-0.5 text-[11px] text-turquoise-300/80">{item.caption}</p>}
-                        </figcaption>
                     </figure>
                 ))}
             </div>

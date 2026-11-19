@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
-import { Gavel, ShieldCheck, Trophy } from 'lucide-react';
+import { ShieldCheck, Trophy } from 'lucide-react';
 
 const slides = [
     { src: '/gallery/Capture-musabaq-1.PNG', alt: 'OpenMusabaqa platform preview 1' },
@@ -42,6 +42,14 @@ export default function HeroShowcase() {
                 </div>
 
                 <div className="relative aspect-[1366/604] bg-[#021a18]">
+                    <div className="pointer-events-none absolute right-3 top-3 z-20 flex h-11 w-11 animate-float items-center justify-center rounded-2xl border border-gold-500/40 bg-[#042f2e]/85 text-gold-300 shadow-lg shadow-black/30 backdrop-blur">
+                        <Trophy size={18} />
+                    </div>
+                    <div className="pointer-events-none absolute bottom-3 left-3 z-10">
+                        <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-[#021a18]/75 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200 backdrop-blur">
+                            <ShieldCheck size={11} /> Verified
+                        </span>
+                    </div>
                     {slides.map((slide, index) => (
                         <img
                             key={slide.src}
@@ -56,25 +64,7 @@ export default function HeroShowcase() {
                 </div>
             </div>
 
-            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-2">
-                    {[
-                        { Icon: Gavel, label: 'Independent judging' },
-                        { Icon: ShieldCheck, label: 'Verified results' },
-                        { Icon: Trophy, label: 'Live rankings' },
-                    ].map(({ Icon, label }) => (
-                        <span
-                            key={label}
-                            className="flex items-center gap-1.5 rounded-full border border-turquoise-500/20 bg-turquoise-500/5 px-2.5 py-1 text-[10px] font-semibold text-turquoise-200"
-                        >
-                            <Icon size={12} /> {label}
-                        </span>
-                    ))}
-                </div>
-                <p className="text-[11px] leading-relaxed text-turquoise-500">Built for fair, dignified Quran competitions.</p>
-            </div>
-
-            <div className="mt-3 flex items-center justify-center gap-2">
+            <div className="mt-4 flex items-center justify-center gap-2">
                 {slides.map((slide, index) => (
                     <button
                         key={slide.src}

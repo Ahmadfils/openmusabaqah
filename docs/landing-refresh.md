@@ -26,7 +26,10 @@ Branch: `feat/landing-page`
 ## 2026-11-19 follow-up
 
 - Removed the Admin console and Platform console links from the footer.
-- Detached the hero icons from the screenshots and condensed them into a separate three-icon strip (Independent judging, Verified results, Live rankings) with a caption.
+- Hero preview: the card under the images is gone; a single floating trophy icon sits on the image as a top-right tag, and the “Verified” caption is at the bottom-left.
+- Gallery now uses the eight `musabaqa-*.jpeg` photos (`musabaqa-1` through `musabaqa-7`, plus `musabaqa-9`); the placeholder `gallery-*.svg` files were deleted, and titles/captions no longer overlay the images.
+- Timeline replaced with the real milestones (Platform MVP → First musabaqa at Bujumbura Q. Asiatique → live stages/public portals → Appropriation of Bujumbura Ngagara Q.10 at the end of March 2026 → multi-organization platform, October 2026).
+- Stats replaced with real database counts: 3 competitions, 52 participants, 128 questions recited, 2 organizations.
 - `/signup` now has a “Back to home” link and a Burundian phone placeholder (`+257 79 123 456`).
 - Removed provider-specific copy from the public site (newsletter and signup messages no longer mention Brevo, Resend, SMTP or API keys).
 - Verification flow: double submissions are idempotent, the verify page only submits once, and `/login?verified=1` shows a confirmation. Unverified users get a resend link on the login page.

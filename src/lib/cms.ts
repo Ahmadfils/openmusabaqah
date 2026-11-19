@@ -38,17 +38,18 @@ const DEFAULT_CTA: CmsCtaContent = {
 };
 
 const DEFAULT_MILESTONES: CmsMilestoneItem[] = [
-    { id: 'default-milestone-1', year: '2023', title: 'The first musabaqa', description: 'A single-venue competition proved that independent digital judging could be faster and fairer.', order: 1 },
-    { id: 'default-milestone-2', year: '2024', title: 'Multi-organization platform', description: 'Organizations gained isolated workspaces with their own judges, groups and leaderboards.', order: 2 },
-    { id: 'default-milestone-3', year: '2025', title: 'Live stages & public portals', description: 'Real-time stage control, public registration and shareable leaderboards arrived.', order: 3 },
-    { id: 'default-milestone-4', year: '2026', title: 'A global community', description: 'Verified organizations, multilingual landing experiences and bulk communication tools.', order: 4 },
+    { id: 'default-milestone-1', year: '2026', title: 'Platform MVP', description: 'The first working version of OpenMusabaqa was built and tested.', order: 1 },
+    { id: 'default-milestone-2', year: 'March 2026', title: 'First musabaqa', description: 'Used for the first musabaqa at Bujumbura Q. Asiatique.', order: 2 },
+    { id: 'default-milestone-3', year: 'March 2026', title: 'Live stages & public portals', description: 'Ran across three days of competitions with live stages and public portals.', order: 3 },
+    { id: 'default-milestone-4', year: 'End of March 2026', title: 'Appropriation of Bujumbura Ngagara Q.10', description: 'The platform was adopted for the competitions at Bujumbura Ngagara Q.10.', order: 4 },
+    { id: 'default-milestone-5', year: 'October 2026', title: 'Multi-organization platform', description: 'Opened the platform to multiple organizations with isolated workspaces.', order: 5 },
 ];
 
 const DEFAULT_STATS: CmsStatItem[] = [
-    { id: 'default-stat-1', label: 'Competitions hosted', value: '120', suffix: '+', icon: 'trophy', order: 1 },
-    { id: 'default-stat-2', label: 'Participating reciters', value: '4,800', suffix: '+', icon: 'users', order: 2 },
-    { id: 'default-stat-3', label: 'Questions recited', value: '18,000', suffix: '+', icon: 'book', order: 3 },
-    { id: 'default-stat-4', label: 'Registered organizations', value: '35', suffix: '', icon: 'building', order: 4 },
+    { id: 'default-stat-1', label: 'Competitions hosted', value: '3', suffix: '', icon: 'trophy', order: 1 },
+    { id: 'default-stat-2', label: 'Participating reciters', value: '52', suffix: '', icon: 'users', order: 2 },
+    { id: 'default-stat-3', label: 'Questions recited', value: '128', suffix: '', icon: 'book', order: 3 },
+    { id: 'default-stat-4', label: 'Registered organizations', value: '2', suffix: '', icon: 'building', order: 4 },
 ];
 
 const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
@@ -115,10 +116,14 @@ const DEFAULT_TEAM: CmsTeamMemberItem[] = [
 ];
 
 const DEFAULT_GALLERY: CmsGalleryItem[] = [
-    { id: 'default-gallery-1', title: 'Opening ceremony', caption: 'Reciters and judges gather for the opening session.', imageUrl: '/gallery/gallery-1.svg', featured: true, order: 1 },
-    { id: 'default-gallery-2', title: 'Judging in progress', caption: 'Independent scoring on dedicated devices.', imageUrl: '/gallery/gallery-2.svg', featured: false, order: 2 },
-    { id: 'default-gallery-3', title: 'Live stage', caption: 'The stage display follows every selection in real time.', imageUrl: '/gallery/gallery-3.svg', featured: false, order: 3 },
-    { id: 'default-gallery-4', title: 'Awards night', caption: 'Celebrating the reciters and the organizations behind them.', imageUrl: '/gallery/gallery-4.svg', featured: false, order: 4 },
+    { id: 'default-gallery-1', title: 'Musabaqa 1', caption: null, imageUrl: '/gallery/musabaqa-1.jpeg', featured: true, order: 1 },
+    { id: 'default-gallery-2', title: 'Musabaqa 2', caption: null, imageUrl: '/gallery/musabaqa-2.jpeg', featured: false, order: 2 },
+    { id: 'default-gallery-3', title: 'Musabaqa 3', caption: null, imageUrl: '/gallery/musabaqa-3.jpeg', featured: false, order: 3 },
+    { id: 'default-gallery-4', title: 'Musabaqa 4', caption: null, imageUrl: '/gallery/musabaqa-4.jpeg', featured: false, order: 4 },
+    { id: 'default-gallery-5', title: 'Musabaqa 5', caption: null, imageUrl: '/gallery/musabaqa-5.jpeg', featured: false, order: 5 },
+    { id: 'default-gallery-6', title: 'Musabaqa 6', caption: null, imageUrl: '/gallery/musabaqa-6.jpeg', featured: false, order: 6 },
+    { id: 'default-gallery-7', title: 'Musabaqa 7', caption: null, imageUrl: '/gallery/musabaqa-7.jpeg', featured: false, order: 7 },
+    { id: 'default-gallery-8', title: 'Musabaqa 9', caption: null, imageUrl: '/gallery/musabaqa-9.jpeg', featured: false, order: 8 },
 ];
 
 const DEFAULT_PARTNERS: CmsPartnerItem[] = [
