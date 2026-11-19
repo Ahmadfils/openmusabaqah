@@ -57,7 +57,7 @@ export function shouldExposeDevLinks(): boolean {
     return transactionalProvider() === 'console' && process.env.NODE_ENV !== 'production';
 }
 
-function htmlShell(title: string, body: string): string {
+export function emailShell(title: string, body: string): string {
     return `<!doctype html>
 <html lang="en">
   <body style="margin:0;background:#042f2e;font-family:Outfit,Arial,sans-serif;color:#e2e8f0;padding:32px 16px">
@@ -82,7 +82,7 @@ export async function sendVerificationEmail(input: {
     createdById?: string;
 }): Promise<EmailResult> {
     const link = verificationUrl(input.token);
-    const html = htmlShell(
+    const html = emailShell(
         'Verify your organization',
         `<p>Assalamu alaikum,</p>
          <p>Confirm the contact email for <strong style="color:#ffffff">${escapeHtml(input.organizationName)}</strong> to activate your OpenMusabaqa workspace.</p>
@@ -110,7 +110,7 @@ export async function sendJudgeInviteEmail(input: {
     competitionName?: string;
     createdById?: string;
 }): Promise<EmailResult> {
-    const html = htmlShell(
+    const html = emailShell(
         'Your judge account is ready',
         `<p>Assalamu alaikum ${escapeHtml(input.judgeName)},</p>
          <p><strong style="color:#ffffff">${escapeHtml(input.organizationName)}</strong> created a judge account for you on OpenMusabaqa${
@@ -334,7 +334,7 @@ async function safeText(res: Response): Promise<string> {
     }
 }
 
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
     return value
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
