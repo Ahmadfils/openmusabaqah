@@ -23,6 +23,15 @@ Branch: `feat/landing-page`
 - The superadmin console is plain request/response — no WebSocket or real-time channel is used.
 - The superadmin CMS changes are included via the merge of `feat/admin-console` (`cf2abf2`).
 
+## 2026-11-19 follow-up
+
+- Removed the Admin console and Platform console links from the footer.
+- Detached the hero icons from the screenshots and condensed them into a separate three-icon strip (Independent judging, Verified results, Live rankings) with a caption.
+- `/signup` now has a “Back to home” link and a Burundian phone placeholder (`+257 79 123 456`).
+- Removed provider-specific copy from the public site (newsletter and signup messages no longer mention Brevo, Resend, SMTP or API keys).
+- Verification flow: double submissions are idempotent, the verify page only submits once, and `/login?verified=1` shows a confirmation. Unverified users get a resend link on the login page.
+- Judge invitations now send the existing invite email when an email address is provided; the admin UI reports whether delivery succeeded.
+
 ## Verification
 
 - `npx tsc --noEmit` passes.

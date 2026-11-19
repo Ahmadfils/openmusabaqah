@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, Loader2, Mail, RefreshCw, XCircle } from 'lucide-react';
@@ -16,6 +16,8 @@ export default function VerifyEmailClient() {
     const [email, setEmail] = useState('');
     const [resending, setResending] = useState(false);
     const [resent, setResent] = useState('');
+    const [resentUrl, setResentUrl] = useState('');
+    const attempted = useRef<string | null>(null);
 
     const verify = useCallback(async (value: string) => {
         setStatus('verifying');
@@ -35,13 +37,16 @@ export default function VerifyEmailClient() {
     }, []);
 
     useEffect(() => {
-        if (token) verify(token);
+        if (!token || attempted.current === token) return;
+        attempted.current = token;
+        verify(token);
     }, [token, verify]);
 
     const resend = async (event: React.FormEvent) => {
         event.preventDefault();
         setResending(true);
         setResent('');
+        setResentUrl('');
         try {
             const res = await fetch('/api/auth/resend-verification', {
                 method: 'POST',
@@ -52,9 +57,10 @@ export default function VerifyEmailClient() {
             if (!res.ok) throw new Error(data.error || 'Unable to resend the verification email');
             setResent(
                 data.verificationUrl
-                    ? `Development link: ${data.verificationUrl}`
+                    ? 'Email delivery is not available here. Use the verification link below:'
                     : 'If this email belongs to an unverified organization, a new link is on its way.',
             );
+            setResentUrl(data.verificationUrl || '');
         } catch (error) {
             setResent(error instanceof Error ? error.message : 'Unable to resend the verification email');
         } finally {
@@ -125,6 +131,11 @@ export default function VerifyEmailClient() {
                                 {resending ? <Loader2 className="animate-spin" size={16} /> : <RefreshCw size={16} />} Resend verification email
                             </button>
                             {resent && <p className="break-all rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-turquoise-300">{resent}</p>}
+                            {resentUrl && (
+                                <a href={resentUrl} className="block break-all rounded-xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-xs text-gold-200 hover:bg-gold-500/15">
+                                    Open verification link
+                                </a>
+                            )}
                         </form>
                     )}
                 </div>

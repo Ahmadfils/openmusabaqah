@@ -15,7 +15,7 @@ export default function JudgesTab({
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
-    const [credentials, setCredentials] = useState<{ username: string; password: string; title: string } | null>(null);
+    const [credentials, setCredentials] = useState<{ username: string; password: string; title: string; note?: string } | null>(null);
     const [resetTarget, setResetTarget] = useState<any>(null);
     const [resetValue, setResetValue] = useState('');
     const [form, setForm] = useState({
@@ -68,6 +68,11 @@ export default function JudgesTab({
                 title: 'Judge account created',
                 username: result.judge.username,
                 password: result.generatedPassword || form.password,
+                note: form.email
+                    ? result.invite?.sent
+                        ? `Invitation email sent to ${form.email}.`
+                        : 'The judge was created, but the invitation email could not be sent. Share the credentials manually.'
+                    : 'No email was provided. Share these credentials with the judge manually.',
             });
             setForm({ displayName: '', username: '', password: '', email: '', phone: '', assign: true });
             await fetchJudges();
@@ -193,6 +198,7 @@ export default function JudgesTab({
                             <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">{credentials.title} — save these now</p>
                             <p className="text-white font-mono mt-2">Username: <strong>{credentials.username}</strong></p>
                             <p className="text-white font-mono">Password: <strong>{credentials.password}</strong></p>
+                            {credentials.note && <p className="mt-2 text-xs text-emerald-200/80">{credentials.note}</p>}
                         </div>
                         <div className="flex gap-2">
                             <button onClick={copyCredentials} className="text-emerald-300 hover:text-emerald-200 p-2"><Copy size={17} /></button>

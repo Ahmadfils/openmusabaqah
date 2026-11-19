@@ -17,15 +17,18 @@ export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
+        const verified = new URLSearchParams(window.location.search).get('verified') === '1';
         fetch('/api/auth/me')
             .then((res) => res.json())
             .then((data) => {
                 if (cancelled) return;
+                if (verified) setNotice('Your email is verified. Sign in to continue.');
                 if (data.user) router.replace(roleHome[data.user.role] ?? '/');
                 else setChecking(false);
             })
@@ -85,6 +88,12 @@ export default function LoginPage() {
                         <p className="text-turquoise-400 text-sm mt-2">Administrators and judges use the same login.</p>
                     </div>
 
+                    {notice && (
+                        <p className="mb-5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-200">
+                            {notice}
+                        </p>
+                    )}
+
                     <form onSubmit={submit} className="space-y-5">
                         <div>
                             <label className="admin-label">Username</label>
@@ -128,6 +137,12 @@ export default function LoginPage() {
                         <Link href="/signup" className="text-gold-400 hover:text-gold-300 font-semibold">
                             Create an account
                         </Link>
+                        <p className="mt-2 text-xs text-turquoise-500">
+                            Email not verified?{' '}
+                            <Link href="/verify-email" className="text-gold-400 hover:text-gold-300 font-semibold">
+                                Resend verification email
+                            </Link>
+                        </p>
                     </div>
                 </div>
 

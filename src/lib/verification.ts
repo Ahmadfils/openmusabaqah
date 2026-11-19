@@ -31,7 +31,14 @@ export async function consumeVerificationToken(token: string): Promise<{ organiz
         where: { token },
         select: { id: true, organizationId: true, expiresAt: true, usedAt: true },
     });
-    if (!record || record.usedAt || record.expiresAt.getTime() < Date.now()) return null;
+    if (!record || record.expiresAt.getTime() < Date.now()) return null;
+    if (record.usedAt) {
+        const organization = await prisma.organization.findUnique({
+            where: { id: record.organizationId },
+            select: { isVerified: true },
+        });
+        return organization?.isVerified ? { organizationId: record.organizationId } : null;
+    }
 
     const now = new Date();
     await prisma.$transaction([

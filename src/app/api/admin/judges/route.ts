@@ -12,6 +12,7 @@ import {
 import { requireOrganizationAdmin } from '@/lib/access';
 import { generatePassword, hashPassword } from '@/lib/auth';
 import { uniqueUsername } from '@/lib/identifiers';
+import { sendJudgeInviteEmail } from '@/lib/email';
 
 export async function GET() {
     return handleRoute(async () => {
@@ -107,6 +108,37 @@ export async function POST(request: Request) {
             },
         });
 
-        return NextResponse.json({ judge, generatedPassword }, { status: 201 });
+        let invite = { sent: false, skipped: true };
+        if (email) {
+            try {
+                const [organization, assignedCompetitions] = await Promise.all([
+                    prisma.organization.findUnique({
+                        where: { id: admin.organizationId },
+                        select: { name: true },
+                    }),
+                    competitionIds.length
+                        ? prisma.competition.findMany({
+                              where: { id: { in: competitionIds } },
+                              select: { name: true },
+                          })
+                        : Promise.resolve([]),
+                ]);
+                const emailResult = await sendJudgeInviteEmail({
+                    to: email,
+                    judgeName: displayName,
+                    username,
+                    password,
+                    organizationName: organization?.name ?? 'OpenMusabaqa',
+                    competitionName: assignedCompetitions.map((competition) => competition.name).join(', ') || undefined,
+                    createdById: admin.id,
+                });
+                invite = { sent: emailResult.ok && !emailResult.skipped, skipped: emailResult.skipped };
+            } catch (error) {
+                console.error('Unable to send judge invitation email:', error);
+                invite = { sent: false, skipped: false };
+            }
+        }
+
+        return NextResponse.json({ judge, generatedPassword, invite }, { status: 201 });
     });
 }
