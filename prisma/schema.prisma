@@ -107,6 +107,7 @@ model Competition {
   leaderboardVisibility LeaderboardVisibility @default(PUBLIC)
   publicRegistration    Boolean               @default(false)
   registrationOpen      Boolean               @default(true)
+  publicLiveStage       Boolean               @default(true)
 
   // FIXED: criteria point caps are summed. PERCENT: weighted criteria out of 100.
   pointsMode      PointsMode @default(FIXED)
