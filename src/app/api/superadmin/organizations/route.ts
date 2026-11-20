@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         const requestedUsername = optionalString(body.username, 'username', { max: 32 });
         const username = requestedUsername
             ? normalizeUsername(requestedUsername)
-            : await uniqueUsername(body.adminEmail?.toString().split('@')[0] || organizationName);
+            : await uniqueUsername(organizationEmail.split('@')[0] || organizationName);
         const password = validatePassword(body.password);
 
         const slug = await uniqueOrganizationSlug(organizationName);

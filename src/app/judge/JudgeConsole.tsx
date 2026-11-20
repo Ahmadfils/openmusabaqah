@@ -298,7 +298,7 @@ export default function JudgeConsole({ user }: { user: { username: string; displ
                 <header className="glass-card flex flex-wrap items-center justify-between gap-4 px-6 py-4">
                     <div className="flex flex-wrap items-center gap-4">
                         <Link href="/" className="gold-text flex items-center gap-2 font-bold">
-                            <BookOpen size={16} /> OpenMusabaqah
+                            <BookOpen size={16} /> OpenMusabaqa
                         </Link>
                         <div className="h-6 w-px bg-white/10" />
                         <div className="flex flex-wrap items-center gap-2">

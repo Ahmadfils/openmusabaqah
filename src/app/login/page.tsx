@@ -1,9 +1,10 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, Loader2, LockKeyhole, UserRound } from 'lucide-react';
+import { Loader2, LockKeyhole, UserRound } from 'lucide-react';
 
 const roleHome: Record<string, string> = {
     SUPERADMIN: '/superadmin',
@@ -16,15 +17,18 @@ export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
+        const verified = new URLSearchParams(window.location.search).get('verified') === '1';
         fetch('/api/auth/me')
             .then((res) => res.json())
             .then((data) => {
                 if (cancelled) return;
+                if (verified) setNotice('Your email is verified. Sign in to continue.');
                 if (data.user) router.replace(roleHome[data.user.role] ?? '/');
                 else setChecking(false);
             })
@@ -67,11 +71,13 @@ export default function LoginPage() {
         <main className="min-h-screen flex items-center justify-center p-6">
             <div className="w-full max-w-md">
                 <Link href="/" className="flex items-center justify-center gap-3 mb-8 group">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-turquoise-500 to-gold-500 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                        <BookOpen size={22} className="text-white" />
-                    </div>
+                    <img
+                        src="/icons/openMusabaqa-logo.svg"
+                        alt="OpenMusabaqa logo"
+                        className="h-12 w-12 rounded-2xl shadow-lg group-hover:scale-105 transition-transform"
+                    />
                     <div>
-                        <p className="gold-text text-2xl font-black">OpenMusabaqah</p>
+                        <p className="gold-text text-2xl font-black">OpenMusabaqa</p>
                         <p className="text-turquoise-500 text-[10px] uppercase tracking-[0.25em]">Competition platform</p>
                     </div>
                 </Link>
@@ -81,6 +87,12 @@ export default function LoginPage() {
                         <h1 className="text-3xl font-black text-white uppercase tracking-tight">Sign in</h1>
                         <p className="text-turquoise-400 text-sm mt-2">Administrators and judges use the same login.</p>
                     </div>
+
+                    {notice && (
+                        <p className="mb-5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-200">
+                            {notice}
+                        </p>
+                    )}
 
                     <form onSubmit={submit} className="space-y-5">
                         <div>
@@ -125,6 +137,12 @@ export default function LoginPage() {
                         <Link href="/signup" className="text-gold-400 hover:text-gold-300 font-semibold">
                             Create an account
                         </Link>
+                        <p className="mt-2 text-xs text-turquoise-500">
+                            Email not verified?{' '}
+                            <Link href="/verify-email" className="text-gold-400 hover:text-gold-300 font-semibold">
+                                Resend verification email
+                            </Link>
+                        </p>
                     </div>
                 </div>
 

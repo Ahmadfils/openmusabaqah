@@ -64,7 +64,7 @@ The seed (`prisma/seed.js`) is idempotent and creates:
 | Role | Username | Password | Organization |
 | --- | --- | --- | --- |
 | `SUPERADMIN` | `superadmin` | `SuperAdmin@123` | none |
-| `ADMIN` | `admin` | `Admin@123` | `OpenMusabaqah Demo` (`openmusabaqah-demo`) |
+| `ADMIN` | `admin` | `Admin@123` | `OpenMusabaqa Demo` (`openmusabaqah-demo`) |
 
 No judges, competitions, groups, questions, or participants are seeded.
 

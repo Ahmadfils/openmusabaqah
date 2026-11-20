@@ -1,6 +1,6 @@
-# OpenMusabaqah Documentation
+# OpenMusabaqa Documentation
 
-OpenMusabaqah is a multi-organization Quran competition platform. Organizations register, create competitions, invite judges, accept public registrations, run a live stage, and publish leaderboards with configurable privacy.
+OpenMusabaqa is a multi-organization Quran competition platform. Organizations register, create competitions, invite judges, accept public registrations, run a live stage, and publish leaderboards with configurable privacy.
 
 ## Roles
 

@@ -38,17 +38,19 @@ async function main() {
     const organization = await prisma.organization.upsert({
         where: { email: 'admin@openmusabaqah.local' },
         update: {
-            name: 'OpenMusabaqah Demo',
+            name: 'OpenMusabaqa Demo',
             slug: 'openmusabaqah-demo',
             isActive: true,
+            isVerified: true,
         },
         create: {
-            name: 'OpenMusabaqah Demo',
+            name: 'OpenMusabaqa Demo',
             slug: 'openmusabaqah-demo',
             email: 'admin@openmusabaqah.local',
             phone: '+000000000',
             country: 'Local',
             city: 'Local',
+            isVerified: true,
         },
     });
 
@@ -76,7 +78,7 @@ async function main() {
     console.log(`    username: ${superadmin.username}`);
     console.log('    password: SuperAdmin@123');
     console.log('');
-    console.log('  ADMIN (organization: OpenMusabaqah Demo)');
+    console.log('  ADMIN (organization: OpenMusabaqa Demo)');
     console.log(`    username: ${admin.username}`);
     console.log('    password: Admin@123');
     console.log('');

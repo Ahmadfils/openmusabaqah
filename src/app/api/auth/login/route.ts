@@ -35,7 +35,7 @@ export async function POST(request: Request) {
                 organizationId: true,
                 isActive: true,
                 sessionVersion: true,
-                organization: { select: { isActive: true, name: true } },
+                organization: { select: { isActive: true, isVerified: true, name: true } },
             },
         });
 
@@ -46,6 +46,9 @@ export async function POST(request: Request) {
         if (!user.isActive) throw new HttpError(403, 'This account is disabled');
         if (user.role !== 'SUPERADMIN' && (!user.organizationId || !user.organization?.isActive)) {
             throw new HttpError(403, 'This organization is disabled');
+        }
+        if (user.role !== 'SUPERADMIN' && !user.organization?.isVerified) {
+            throw new HttpError(403, 'This organization has not verified its email address yet. Check your inbox or contact support.');
         }
 
         clearLoginFailures(rateKey);

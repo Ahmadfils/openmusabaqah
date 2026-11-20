@@ -16,7 +16,7 @@ function sessionSecret(): string {
     if (process.env.NODE_ENV === 'production') {
         throw new Error('AUTH_SECRET must be set to at least 16 characters in production');
     }
-    return 'openmusabaqah-development-secret-change-me';
+    return 'openmusabaqa-development-secret-change-me';
 }
 
 function signature(payload: string): string {
@@ -122,12 +122,14 @@ export async function getSession(): Promise<SessionUser | null> {
             organizationId: true,
             isActive: true,
             sessionVersion: true,
-            organization: { select: { isActive: true } },
+            organization: { select: { isActive: true, isVerified: true } },
         },
     });
 
     if (!user || !user.isActive || user.sessionVersion !== payload.sv) return null;
-    if (user.role !== 'SUPERADMIN' && (!user.organizationId || !user.organization?.isActive)) return null;
+    if (user.role !== 'SUPERADMIN' && (!user.organizationId || !user.organization?.isActive || !user.organization.isVerified)) {
+        return null;
+    }
 
     return {
         id: user.id,

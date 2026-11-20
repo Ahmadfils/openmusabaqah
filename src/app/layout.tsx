@@ -5,6 +5,13 @@ export const metadata: Metadata = {
     title: 'OpenMusabaqa – Quran Competition Platform',
     description: 'A modern, real-time Quran competition management platform for participants, judges, and administrators.',
     manifest: '/manifest.json',
+    icons: {
+        icon: [
+            { url: '/icons/openMusabaqa-icon-192x192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/icons/openMusabaqa-icon-512x512.png', sizes: '512x512', type: 'image/png' },
+        ],
+        apple: '/icons/openMusabaqa-icon-180x180.png',
+    },
     appleWebApp: {
         capable: true,
         statusBarStyle: 'black-translucent',
@@ -29,7 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link rel="apple-touch-icon" href="/icons/icon-192.png" />
             </head>
             <body className="min-h-screen antialiased">
                 {/* Animated background */}
