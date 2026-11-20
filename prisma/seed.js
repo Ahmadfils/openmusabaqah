@@ -39,15 +39,15 @@ async function main() {
         where: { email: 'admin@openmusabaqah.local' },
         update: {
             name: 'OpenMusabaqa Demo',
-            slug: 'openmusabaqah-demo',
+            slug: 'openmusabaqa-demo',
             isActive: true,
             isVerified: true,
         },
         create: {
             name: 'OpenMusabaqa Demo',
-            slug: 'openmusabaqah-demo',
-            email: 'admin@openmusabaqah.local',
-            phone: '+000000000',
+            slug: 'openmusabaqa-demo',
+            email: 'admin@openmusabaqah.org',
+            phone: '+257 77 123456',
             country: 'Local',
             city: 'Local',
             isVerified: true,
@@ -59,7 +59,7 @@ async function main() {
         password: 'SuperAdmin@123',
         role: 'SUPERADMIN',
         displayName: 'Platform Superadmin',
-        email: 'superadmin@openmusabaqah.local',
+        email: 'superadmin@openmusabaqah.org',
         organizationId: null,
     });
 
@@ -68,7 +68,7 @@ async function main() {
         password: 'Admin@123',
         role: 'ADMIN',
         displayName: 'Demo Organization Admin',
-        email: 'admin@openmusabaqah.local',
+        email: 'admin@openmusabaqah.org',
         organizationId: organization.id,
     });
 
