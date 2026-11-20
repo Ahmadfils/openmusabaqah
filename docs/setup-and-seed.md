@@ -165,6 +165,42 @@ npx prisma generate
 
 Verify the judge has an **active** assignment for a non-archived competition and that the judge account is enabled.
 
+## Importing local data to a cloud database
+
+`npm run db:import-cloud` copies the local database (source) into a hosted PostgreSQL database (target).
+
+### 1. Add the cloud credentials
+
+Add the cloud connection string to `.env`. The file is git-ignored, so credentials are never committed:
+
+```bash
+# Cloud PostgreSQL used only by the import script.
+TARGET_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/openmusabaqa?schema=public&sslmode=require"
+```
+
+- Prefer the **direct/non-pooled** URL from your provider (Neon, Supabase, Railway, RDS, ...).
+- Keep `?sslmode=require` when the provider requires TLS.
+- `SOURCE_DATABASE_URL` is optional; without it the script uses `DATABASE_URL`.
+- You can pass both URLs on the command line instead, but they will be stored in your shell history.
+
+### 2. Check the connection
+
+```bash
+npm run db:import-cloud -- --dry-run
+```
+
+### 3. Import
+
+```bash
+# Append: existing target rows are kept and duplicate ids are skipped.
+npm run db:import-cloud
+
+# Exact clone: wipes the target tables first (destructive, must confirm).
+npm run db:import-cloud -- --replace --yes
+```
+
+The script copies all application and CMS tables in dependency order and prints source/inserted/target row counts. If a table count differs, re-run with `--replace --yes` to force an exact copy.
+
 ## Deployment notes
 
 - Set `AUTH_SECRET`, `DATABASE_URL`, `DIRECT_URL`, and `NEXT_PUBLIC_APP_URL` in the hosting provider.
