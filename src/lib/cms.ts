@@ -127,10 +127,10 @@ const DEFAULT_GALLERY: CmsGalleryItem[] = [
 ];
 
 const DEFAULT_PARTNERS: CmsPartnerItem[] = [
-    { id: 'default-partner-1', name: 'Al-Noor Institute', logoUrl: null, website: null, tier: 'gold', order: 1 },
-    { id: 'default-partner-2', name: 'Quran Academy', logoUrl: null, website: null, tier: 'silver', order: 2 },
-    { id: 'default-partner-3', name: 'Dar Al-Hikma Foundation', logoUrl: null, website: null, tier: 'partner', order: 3 },
-    { id: 'default-partner-4', name: 'Nur Media', logoUrl: null, website: null, tier: 'partner', order: 4 },
+    { id: 'default-partner-1', name: 'Niheza Work', logoUrl: '/gallery/Partner_gold_Niheza work.png', website: null, tier: 'gold', order: 1 },
+    { id: 'default-partner-2', name: 'رابطة حفظة كتاب الله', logoUrl: '/gallery/Partner_Silver_رابطة حفظة كتاب الله.jpeg', website: null, tier: 'silver', order: 2 },
+    { id: 'default-partner-3', name: 'Ahlul-Khayr Community', logoUrl: '/gallery/Partner_Ahlul-Khayr Community.jpeg', website: null, tier: 'partner', order: 3 },
+    { id: 'default-partner-4', name: 'Madrasatul Ahlul Bait', logoUrl: '/gallery/Partner_Madrasatul Ahlul Bait.png', website: null, tier: 'partner', order: 4 },
 ];
 
 export const DEFAULT_LANDING_CONTENT: LandingContent = {

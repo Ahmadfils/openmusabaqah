@@ -61,11 +61,12 @@ export function PartnersSection({ partners }: { partners: CmsPartnerItem[] }) {
             />
             <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
                 {partners.map((partner) => {
+                    const logoSrc = partner.logoUrl ? encodeURI(partner.logoUrl) : null;
                     const content = (
                         <>
-                            <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-lg font-black">
-                                {partner.logoUrl ? (
-                                    <img src={partner.logoUrl} alt={`${partner.name} logo`} className="h-9 w-9 object-contain" />
+                            <span className="flex h-24 w-full items-center justify-center rounded-2xl border border-white/10 bg-white p-3 text-lg font-black text-turquoise-900">
+                                {logoSrc ? (
+                                    <img src={logoSrc} alt={`${partner.name} logo`} className="h-full w-full object-contain" />
                                 ) : (
                                     partner.name.slice(0, 2).toUpperCase()
                                 )}
