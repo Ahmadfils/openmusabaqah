@@ -1,9 +1,35 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
+const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://openmusabaqa.org').replace(/\/$/, '');
+const siteTitle = 'OpenMusabaqa – Quran Competition Platform';
+const siteDescription =
+    'Real-time Quran competition management for organizers, judges and reciters: independent judging, public registration, live stages and transparent leaderboards.';
+
 export const metadata: Metadata = {
-    title: 'OpenMusabaqa – Quran Competition Platform',
-    description: 'A modern, real-time Quran competition management platform for participants, judges, and administrators.',
+    metadataBase: new URL(siteUrl),
+    title: {
+        default: siteTitle,
+        template: '%s · OpenMusabaqa',
+    },
+    description: siteDescription,
+    applicationName: 'OpenMusabaqa',
+    keywords: [
+        'Quran competition',
+        'musabaqa',
+        'Quran recitation',
+        'tajweed competition',
+        'Quran memorization',
+        'Islamic competition platform',
+        'competition judging software',
+    ],
+    authors: [{ name: 'OpenMusabaqa' }],
+    creator: 'OpenMusabaqa',
+    publisher: 'OpenMusabaqa',
+    category: 'education',
+    alternates: {
+        canonical: '/',
+    },
     manifest: '/manifest.json',
     icons: {
         icon: [
@@ -17,11 +43,66 @@ export const metadata: Metadata = {
         statusBarStyle: 'black-translucent',
         title: 'OpenMusabaqa',
     },
-    openGraph: {
-        title: 'OpenMusabaqa – Quran Competition Platform',
-        description: 'A modern, real-time Quran competition platform',
-        type: 'website',
+    formatDetection: {
+        email: false,
+        address: false,
+        telephone: false,
     },
+    openGraph: {
+        type: 'website',
+        url: '/',
+        siteName: 'OpenMusabaqa',
+        locale: 'en_US',
+        title: siteTitle,
+        description: siteDescription,
+        images: [
+            {
+                url: '/gallery/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: 'OpenMusabaqa – Quran Competition Platform',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: siteTitle,
+        description: siteDescription,
+        images: ['/gallery/og-image.png'],
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+            'max-video-preview': -1,
+        },
+    },
+};
+
+const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+        {
+            '@type': 'WebSite',
+            '@id': `${siteUrl}/#website`,
+            url: siteUrl,
+            name: 'OpenMusabaqa',
+            description: siteDescription,
+            publisher: { '@id': `${siteUrl}/#organization` },
+        },
+        {
+            '@type': 'Organization',
+            '@id': `${siteUrl}/#organization`,
+            name: 'OpenMusabaqa',
+            url: siteUrl,
+            logo: `${siteUrl}/gallery/openMusabaqa-logo-white.png`,
+            email: 'partners@openmusabaqa.org',
+        },
+    ],
 };
 
 export const viewport: Viewport = {
@@ -32,10 +113,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="ar" dir="ltr">
+        <html lang="en" dir="ltr">
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                />
             </head>
             <body className="min-h-screen antialiased">
                 {/* Animated background */}

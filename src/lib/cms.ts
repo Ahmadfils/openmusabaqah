@@ -38,10 +38,10 @@ const DEFAULT_CTA: CmsCtaContent = {
 };
 
 const DEFAULT_MILESTONES: CmsMilestoneItem[] = [
-    { id: 'default-milestone-1', year: '2026', title: 'Platform MVP', description: 'The first working version of OpenMusabaqa was built and tested.', order: 1 },
+    { id: 'default-milestone-1', year: 'February 2026', title: 'Platform MVP', description: 'The first working version of OpenMusabaqa was built and tested.', order: 1 },
     { id: 'default-milestone-2', year: 'March 2026', title: 'First musabaqa', description: 'Used for the first musabaqa at Bujumbura Q. Asiatique.', order: 2 },
     { id: 'default-milestone-3', year: 'March 2026', title: 'Live stages & public portals', description: 'Ran across three days of competitions with live stages and public portals.', order: 3 },
-    { id: 'default-milestone-4', year: 'End of March 2026', title: 'Appropriation of Bujumbura Ngagara Q.10', description: 'The platform was adopted for the competitions at Bujumbura Ngagara Q.10.', order: 4 },
+    { id: 'default-milestone-4', year: 'End of March 2026', title: 'Appropriation at Ahlul Bayt Institute', description: 'The platform was adopted for the competitions at Ahlul Bayt Institute.', order: 4 },
     { id: 'default-milestone-5', year: 'October 2026', title: 'Multi-organization platform', description: 'Opened the platform to multiple organizations with isolated workspaces.', order: 5 },
 ];
 
@@ -55,29 +55,29 @@ const DEFAULT_STATS: CmsStatItem[] = [
 const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
     {
         id: 'default-testimonial-1',
-        name: 'Dr. Amina Rahman',
-        role: 'Head judge · Al-Noor Institute',
+        name: 'Sheikh Radjabu',
+        role: 'Competition organizer · Bujumbura',
         avatarUrl: null,
-        quote: 'Independent scoring removed the pressure of the stage. Every judge submits from their own device and the platform reconciles everything instantly.',
-        rating: 5,
+        quote: 'Points that used to take the whole evening are now calculated in minutes. The judges work calmly and independently, and the management can follow every round without chasing paperwork.',
+        rating: 4,
         order: 1,
     },
     {
         id: 'default-testimonial-2',
-        name: 'Imam Sulaiman Diallo',
-        role: 'Competition organizer · Djibouti',
+        name: 'Hafiza Rahma Sam',
+        role: 'Head judge · Ahlul Bayt',
         avatarUrl: null,
-        quote: 'We moved from spreadsheets to OpenMusabaqa in one weekend. Registration, groups and the leaderboard now run themselves.',
+        quote: 'Independent scoring removed the pressure of the stage. Every judge submits from their own device and the platform reconciles everything instantly.',
         rating: 5,
         order: 2,
     },
     {
         id: 'default-testimonial-3',
-        name: 'Hafiz Yusuf Karim',
-        role: 'Contestant · 2025 season',
+        name: 'Hafiz Abdoul Maleek',
+        role: 'Contestant · 2026 season edition 1',
         avatarUrl: null,
         quote: 'I could follow my own progress and see the final ranking without waiting for an announcement. It felt transparent and dignified.',
-        rating: 5,
+        rating: 4,
         order: 3,
     },
 ];
