@@ -59,7 +59,7 @@ const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
         role: 'Competition organizer · Bujumbura',
         avatarUrl: null,
         quote: 'Points that used to take the whole evening are now calculated in minutes. The judges work calmly and independently, and the management can follow every round without chasing paperwork.',
-        rating: 4,
+        rating: 3,
         order: 1,
     },
     {
@@ -67,8 +67,8 @@ const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
         name: 'Hafiza Rahma Sam',
         role: 'Head judge · Ahlul Bayt',
         avatarUrl: null,
-        quote: 'Independent scoring removed the pressure of the stage. Every judge submits from their own device and the platform reconciles everything instantly.',
-        rating: 5,
+        quote: 'We moved from spreadsheets to OpenMusabaqa in one weekend. Registration, groups and the leaderboard now run themselves.',
+        rating: 4,
         order: 2,
     },
     {
@@ -77,7 +77,7 @@ const DEFAULT_TESTIMONIALS: CmsTestimonialItem[] = [
         role: 'Contestant · 2026 season edition 1',
         avatarUrl: null,
         quote: 'I could follow my own progress and see the final ranking without waiting for an announcement. It felt transparent and dignified.',
-        rating: 4,
+        rating: 3,
         order: 3,
     },
 ];
