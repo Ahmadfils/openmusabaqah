@@ -13,6 +13,7 @@
  */
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const { PrismaClient } = require('@prisma/client');
 
 const TABLES = [
@@ -98,6 +99,32 @@ async function counts(client) {
     return result;
 }
 
+async function tableExists(client, table) {
+    const rows = await client.$queryRawUnsafe(
+        `select 1 from information_schema.tables where table_schema = 'public' and table_name = '${table}' limit 1`,
+    );
+    return rows.length > 0;
+}
+
+function applyTargetMigrations(targetUrl, directUrl) {
+    const cli = path.join(__dirname, '..', 'node_modules', 'prisma', 'build', 'index.js');
+    if (!fs.existsSync(cli)) {
+        throw new Error('Prisma CLI not found. Run npm install before importing.');
+    }
+    console.log(`Target schema is empty. Applying migrations via ${describe(directUrl)}...`);
+    try {
+        execFileSync(process.execPath, [cli, 'migrate', 'deploy'], {
+            env: { ...process.env, DATABASE_URL: targetUrl, DIRECT_URL: directUrl },
+            stdio: 'inherit',
+        });
+    } catch {
+        throw new Error(
+            'Could not apply migrations to the target. Set TARGET_DIRECT_URL to the direct (non-pooled) database URL and retry.',
+        );
+    }
+    console.log('');
+}
+
 async function copyTable(source, target, model, { replace, batchSize, dryRun }) {
     const rows = await source[model].findMany();
     if (dryRun || rows.length === 0) {
@@ -131,12 +158,17 @@ Usage:
 Options:
   --source <url>      Source database (default: SOURCE_DATABASE_URL or DATABASE_URL)
   --target <url>      Target/cloud database (default: TARGET_DATABASE_URL)
+  --target-direct <url>
+                      Direct target URL used to apply migrations
+                      (default: TARGET_DIRECT_URL or the --target URL)
   --replace           Wipe the target tables before inserting (requires --yes)
   --yes               Confirm the destructive --replace mode
   --dry-run           Report source and target row counts without writing
   --batch-size <n>    Rows per insert batch (default: 250)
 
-Without --replace, existing rows are kept and duplicate ids are skipped.`);
+If the target schema is empty, the migrations in prisma/migrations are applied
+automatically before copying. Without --replace, existing rows are kept and
+duplicate ids are skipped.`);
         return;
     }
 
@@ -144,6 +176,7 @@ Without --replace, existing rows are kept and duplicate ids are skipped.`);
 
     const sourceUrl = getArg('source') || process.env.SOURCE_DATABASE_URL || process.env.DATABASE_URL;
     const targetUrl = getArg('target') || process.env.TARGET_DATABASE_URL;
+    const directUrl = getArg('target-direct') || process.env.TARGET_DIRECT_URL || targetUrl;
     const replace = hasFlag('replace');
     const dryRun = hasFlag('dry-run');
     const batchSize = Number(getArg('batch-size')) || 250;
@@ -152,6 +185,7 @@ Without --replace, existing rows are kept and duplicate ids are skipped.`);
     if (!targetUrl) throw new Error('Missing target. Pass --target="postgresql://..." or set TARGET_DATABASE_URL.');
     validate(sourceUrl, 'Source');
     validate(targetUrl, 'Target');
+    validate(directUrl, 'Target direct');
 
     if (new URL(sourceUrl).hostname === new URL(targetUrl).hostname && sourceUrl === targetUrl) {
         throw new Error('Source and target are the same database; refusing to import.');
@@ -171,6 +205,20 @@ Without --replace, existing rows are kept and duplicate ids are skipped.`);
     try {
         await source.$queryRawUnsafe('select 1');
         await target.$queryRawUnsafe('select 1');
+
+        if (!(await tableExists(target, 'Organization'))) {
+            if (dryRun) {
+                throw new Error('Target schema is missing. Run the import without --dry-run to apply migrations first.');
+            }
+            if (!getArg('target-direct') && !process.env.TARGET_DIRECT_URL && /pooler/i.test(new URL(targetUrl).hostname)) {
+                console.warn('Target uses a connection pooler. If migrations fail, set TARGET_DIRECT_URL to the direct database URL.');
+                console.log('');
+            }
+            applyTargetMigrations(targetUrl, directUrl);
+            if (!(await tableExists(target, 'Organization'))) {
+                throw new Error('Target schema is still missing after migrate deploy. Check TARGET_DIRECT_URL and prisma/migrations.');
+            }
+        }
 
         const targetBefore = await counts(target);
         const hasTargetData = Object.values(targetBefore).some((value) => value > 0);

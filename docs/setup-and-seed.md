@@ -176,9 +176,14 @@ Add the cloud connection string to `.env`. The file is git-ignored, so credentia
 ```bash
 # Cloud PostgreSQL used only by the import script.
 TARGET_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/openmusabaqa?schema=public&sslmode=require"
+
+# Direct (non-pooled) connection, used to apply migrations on the target.
+# On Supabase this is db.<project-ref>.supabase.co:5432, not the pooler host.
+TARGET_DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/openmusabaqa?schema=public&sslmode=require"
 ```
 
-- Prefer the **direct/non-pooled** URL from your provider (Neon, Supabase, Railway, RDS, ...).
+- `TARGET_DATABASE_URL` can be your provider's pooled URL; `TARGET_DIRECT_URL` must be the direct connection.
+- If `TARGET_DIRECT_URL` is omitted, the script uses `TARGET_DATABASE_URL` for migrations and warns when that host is a pooler.
 - Keep `?sslmode=require` when the provider requires TLS.
 - `SOURCE_DATABASE_URL` is optional; without it the script uses `DATABASE_URL`.
 - You can pass both URLs on the command line instead, but they will be stored in your shell history.
@@ -188,6 +193,8 @@ TARGET_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/openmusabaqa?schema=pu
 ```bash
 npm run db:import-cloud -- --dry-run
 ```
+
+A dry run never writes. If the target schema is empty it stops and tells you to run the import without `--dry-run`.
 
 ### 3. Import
 
@@ -199,12 +206,13 @@ npm run db:import-cloud
 npm run db:import-cloud -- --replace --yes
 ```
 
-The script copies all application and CMS tables in dependency order and prints source/inserted/target row counts. If a table count differs, re-run with `--replace --yes` to force an exact copy.
+If the target has no schema yet, the script runs `prisma migrate deploy` against it first, then copies all application and CMS tables in dependency order and prints source/inserted/target row counts. If a table count differs, re-run with `--replace --yes` to force an exact copy.
 
 ## Deployment notes
 
 - Set `AUTH_SECRET`, `DATABASE_URL`, `DIRECT_URL`, and `NEXT_PUBLIC_APP_URL` in the hosting provider.
-- Run `prisma migrate deploy` (or `db push`) during release, then optionally `db:seed` once.
+- The build command runs `prisma migrate deploy && next build`, so each Vercel deployment applies pending migrations automatically. On Supabase, set `DIRECT_URL` to the direct connection (`db.<project-ref>.supabase.co:5432`); the pooler can reject migrations.
+- Optionally run `db:seed` once, then remove it from the release flow.
 - Use HTTPS; cookies become `secure` automatically in production.
 - Polling endpoints are cheap but called frequently. If you scale horizontally, keep the database connection pool sized for the number of instances.
 - The login rate limiter is per process. For strict limits, put a shared limiter in front (reverse proxy or Redis).
