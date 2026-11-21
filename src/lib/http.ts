@@ -106,8 +106,24 @@ export function optionalFloat(
     return parsed;
 }
 
-export function normalizeUsername(value: unknown): string {
-    const username = requiredString(value, 'username', { min: 3, max: 32 }).toLowerCase();
+export function normalizeEmail(value: unknown): string {
+    const email = requiredString(value, 'email', { max: 200 }).toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new HttpError(400, 'Enter a valid email address');
+    }
+    return email;
+}
+
+export function requestIp(request: Request): string {
+    const forwarded = request.headers.get('x-forwarded-for');
+    if (forwarded) {
+        const first = forwarded.split(',')[0]?.trim();
+        if (first) return first;
+    }
+    return request.headers.get('x-real-ip')?.trim() || 'unknown';
+}
+
+export function normalizeUsername(value: unknown): string {    const username = requiredString(value, 'username', { min: 3, max: 32 }).toLowerCase();
     if (!/^[a-z0-9._-]+$/.test(username)) {
         throw new HttpError(400, 'username may only contain letters, numbers, dots, underscores and dashes');
     }

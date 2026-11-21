@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { CheckCircle2, Loader2, Mail } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 
 export default function NewsletterSection() {
     const [email, setEmail] = useState('');
+    const [consent, setConsent] = useState(false);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
 
@@ -17,13 +19,14 @@ export default function NewsletterSection() {
             const res = await fetch('/api/newsletter', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, source: 'landing_page' }),
+                body: JSON.stringify({ email, consent, source: 'landing_page' }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Unable to subscribe');
             setStatus('success');
             setMessage('You are on the list. Competition updates and bulletins will arrive in your inbox.');
             setEmail('');
+            setConsent(false);
         } catch (error) {
             setStatus('error');
             setMessage(error instanceof Error ? error.message : 'Unable to subscribe');
@@ -58,6 +61,16 @@ export default function NewsletterSection() {
                             {status === 'loading' ? <Loader2 className="animate-spin" size={15} /> : 'Subscribe'}
                         </button>
                     </div>
+                    <label className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-turquoise-300/80">
+                        <input
+                            type="checkbox"
+                            required
+                            checked={consent}
+                            onChange={(event) => setConsent(event.target.checked)}
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-gold-500"
+                        />
+                        <span>I agree to receive occasional competition updates by email. I can unsubscribe at any time.</span>
+                    </label>
                     {message && (
                         <p
                             className={`mt-3 flex items-start gap-2 rounded-xl border px-3 py-2 text-xs ${
@@ -70,6 +83,9 @@ export default function NewsletterSection() {
                             {message}
                         </p>
                     )}
+                    <p className="mt-3 text-[11px] text-turquoise-500">
+                        Already subscribed? <Link href="/unsubscribe" className="underline hover:text-gold-300">Unsubscribe</Link>
+                    </p>
                 </form>
             </div>
         </section>

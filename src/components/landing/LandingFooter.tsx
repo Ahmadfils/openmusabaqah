@@ -57,6 +57,7 @@ export default function LandingFooter() {
                                 <li><Link href="/results" className="hover:text-gold-300">Competitions</Link></li>
                                 <li><a href="#leaderboards" className="hover:text-gold-300">Leaderboards</a></li>
                                 <li><a href="#newsletter" className="hover:text-gold-300">Newsletter</a></li>
+                                <li><Link href="/unsubscribe" className="hover:text-gold-300">Unsubscribe</Link></li>
                                 <li><a href="#gallery" className="hover:text-gold-300">Gallery</a></li>
                             </ul>
                         </div>

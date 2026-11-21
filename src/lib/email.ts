@@ -2,6 +2,10 @@ import 'server-only';
 
 import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
+import { appUrl } from '@/lib/app-url';
+import { isBrevoConfigured, sendBrevoTransactional } from '@/lib/brevo';
+
+export { appUrl };
 
 type Provider = 'resend' | 'brevo' | 'smtp' | 'console';
 
@@ -24,7 +28,6 @@ type MailInput = {
 
 const from = process.env.EMAIL_FROM || 'OpenMusabaqa <no-reply@openmusabaqa.org>';
 const resendKey = process.env.RESEND_API_KEY;
-const brevoKey = process.env.BREVO_API_KEY;
 const smtpHost = process.env.SMTP_HOST;
 const smtpPort = Number(process.env.SMTP_PORT || 587);
 const smtpUser = process.env.SMTP_USER;
@@ -34,17 +37,13 @@ const configuredProvider = (process.env.EMAIL_PROVIDER || '').toLowerCase() as P
 
 function transactionalProvider(): Provider {
     if (configuredProvider === 'resend' && resendKey) return 'resend';
-    if (configuredProvider === 'brevo' && brevoKey) return 'brevo';
+    if (configuredProvider === 'brevo' && isBrevoConfigured()) return 'brevo';
     if (configuredProvider === 'smtp' && smtpHost) return 'smtp';
     if (configuredProvider === 'console') return 'console';
     if (resendKey) return 'resend';
     if (smtpHost) return 'smtp';
-    if (brevoKey) return 'brevo';
+    if (isBrevoConfigured()) return 'brevo';
     return 'console';
-}
-
-export function appUrl(): string {
-    return (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
 }
 
 export function verificationUrl(token: string): string {
@@ -175,7 +174,7 @@ export async function sendBulkEmail(input: {
 }
 
 async function sendMail(input: MailInput): Promise<EmailResult> {
-    const provider = input.kind === 'BULK' && brevoKey ? 'brevo' : transactionalProvider();
+    const provider = input.kind === 'BULK' && isBrevoConfigured() ? 'brevo' : transactionalProvider();
     const result = await deliver(provider, input);
     await logDelivery(provider, input, result);
     return result;
@@ -219,29 +218,19 @@ async function deliverResend(input: MailInput): Promise<EmailResult> {
 }
 
 async function deliverBrevo(input: MailInput): Promise<EmailResult> {
-    if (!brevoKey) {
-        return { ok: false, provider: 'brevo', skipped: true, detail: 'BREVO_API_KEY is not set' };
-    }
-    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: {
-            'api-key': brevoKey,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-        },
-        body: JSON.stringify({
-            sender: parseSender(from),
-            to: input.to.map((email) => ({ email })),
-            subject: input.subject,
-            htmlContent: input.html,
-            textContent: input.text,
-            replyTo: input.replyTo ? { email: input.replyTo } : undefined,
-        }),
+    const result = await sendBrevoTransactional({
+        to: input.to,
+        subject: input.subject,
+        html: input.html,
+        text: input.text,
+        replyTo: input.replyTo,
     });
-    if (!res.ok) {
-        return { ok: false, provider: 'brevo', skipped: false, detail: await safeText(res) };
-    }
-    return { ok: true, provider: 'brevo', skipped: false };
+    return {
+        ok: result.ok,
+        provider: 'brevo',
+        skipped: Boolean(result.skipped),
+        detail: result.detail,
+    };
 }
 
 async function deliverSmtp(input: MailInput): Promise<EmailResult> {
@@ -281,49 +270,6 @@ async function logDelivery(provider: string, input: MailInput, result: EmailResu
     } catch (error) {
         console.error('Unable to record email log:', error);
     }
-}
-
-export async function subscribeToNewsletter(email: string, source = 'landing_page') {
-    const subscriber = await prisma.newsletterSubscriber.upsert({
-        where: { email },
-        update: {},
-        create: { email, source },
-    });
-    if (!brevoKey || subscriber.syncedBrevo) return subscriber;
-
-    try {
-        const listId = Number(process.env.BREVO_LIST_ID || 0);
-        const res = await fetch('https://api.brevo.com/v3/contacts', {
-            method: 'POST',
-            headers: {
-                'api-key': brevoKey,
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify({
-                email,
-                listIds: listId > 0 ? [listId] : undefined,
-                updateEnabled: true,
-            }),
-        });
-        if (res.ok || res.status === 400) {
-            // 400 usually means the contact already exists in Brevo.
-            const synced = await prisma.newsletterSubscriber.update({
-                where: { id: subscriber.id },
-                data: { syncedBrevo: true },
-            });
-            return synced;
-        }
-    } catch (error) {
-        console.error('Brevo contact sync failed:', error);
-    }
-    return subscriber;
-}
-
-function parseSender(value: string): { email: string; name?: string } {
-    const match = value.match(/^(.*)<([^>]+)>$/);
-    if (match) return { name: match[1].trim().replace(/^"|"$/g, ''), email: match[2].trim() };
-    return { email: value.trim() };
 }
 
 async function safeText(res: Response): Promise<string> {

@@ -62,7 +62,7 @@ A mission control center for administrators:
 The platform follows a secure role-based hierarchy to ensure organizational sovereignty:
 
 ```
-[ Organization Registers ] ──> [ Email Verification (Resend/Nodemailer) ]
+[ Organization Registers ] ──> [ Email Verification (Brevo/Resend/SMTP) ]
                                           │
                                           ▼
                                 [ Admin Setup Profile ]
@@ -87,7 +87,7 @@ The platform follows a secure role-based hierarchy to ensure organizational sove
 ```
 
 1. **Organization Registration**: Institutions register on the public portal.
-2. **Email Verification**: A one-time verification link is dispatched via Resend / Nodemailer.
+2. **Email Verification**: A one-time verification link is dispatched via Brevo, Resend or SMTP.
 3. **Admin Setup**: Upon email confirmation, the Organization Admin configures their profile and username.
 4. **Admin Login**: Admins authenticate using their chosen username and secure password.
 5. **Judge Provisioning**: Admins generate judge profiles with assigned usernames and secure credentials.
@@ -98,9 +98,11 @@ The platform follows a secure role-based hierarchy to ensure organizational sove
 
 ## Email Infrastructure
 
-OpenMusabaqa employs a dual-provider email strategy:
-- **Transactional (Resend / Nodemailer)**: High-speed delivery for organization email verifications, password resets, and judge credential invitations.
-- **Bulk Communications (Brevo)**: Scalable delivery for newsletter subscribers, mass participant announcements, and competition results bulletins.
+OpenMusabaqa supports Brevo, Resend and SMTP with a console fallback for local development:
+- **Transactional (Brevo / Resend / SMTP)**: Organization email verification, verification resends, password resets and judge credential invitations.
+- **Newsletter (Brevo)**: Contacts are created or updated in a Brevo list immediately on consent, with unsubscribe state stored in Supabase.
+
+See [docs/BREVO_CONFIGURATION.md](./docs/BREVO_CONFIGURATION.md) for domain verification, SPF/DKIM/DMARC and Vercel setup.
 
 ---
 
@@ -112,8 +114,8 @@ OpenMusabaqa employs a dual-provider email strategy:
 | **Database & ORM** | PostgreSQL with [Prisma ORM](https://www.prisma.io/) |
 | **Styling** | Tailwind CSS with custom Islamic gold & turquoise design system |
 | **Icons** | Lucide React & Custom SVG Calligraphy |
-| **Transactional Email**| Resend / Nodemailer |
-| **Bulk Email & Marketing**| Brevo (Sendinblue API) |
+| **Transactional Email**| Brevo / Resend / Nodemailer SMTP |
+| **Newsletter & Contacts**| Brevo (Sendinblue API) |
 | **Quran Content API** | Dynamic integration with [Quran API](https://quranapi.pages.dev/) |
 | **App Delivery** | Progressive Web App (PWA) with installable service workers |
 
@@ -142,14 +144,18 @@ DIRECT_URL="postgresql://postgres:password@localhost:5432/openmusabaqa?schema=pu
 
 # Application URL & Security
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+APP_URL="http://localhost:3000"
 AUTH_SECRET="your-super-secret-jwt-key"
 
-# Transactional Email (Resend or SMTP)
+# Transactional Email (Brevo, Resend or SMTP)
+EMAIL_PROVIDER="brevo"
+EMAIL_FROM="OpenMusabaqa <no-reply@openmusabaqa.org>"
 RESEND_API_KEY="re_123456789"
-EMAIL_FROM="noreply@openmusabaqa.com"
 
-# Bulk Email & Newsletter (Brevo)
+# Brevo (transactional + newsletter contacts)
 BREVO_API_KEY="xkeysib-123456789"
+BREVO_SENDER_EMAIL="no-reply@openmusabaqa.org"
+BREVO_SENDER_NAME="OpenMusabaqa"
 BREVO_NEWSLETTER_LIST_ID="2"
 ```
 

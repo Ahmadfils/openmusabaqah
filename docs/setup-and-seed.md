@@ -96,7 +96,7 @@ Default URL: `http://localhost:3000`.
 
 ## Testing without email
 
-There is no mail delivery. Registration reference codes appear on screen, and judge credentials appear once in the admin UI. If a credential is lost, reset the judge password from the **Judges** tab.
+With `EMAIL_PROVIDER="console"` (the default when no provider is configured), verification links are printed to the server console and echoed back in the response for development. Newsletter subscriptions are still saved; Brevo contact sync stays pending until `BREVO_API_KEY` and `BREVO_NEWSLETTER_LIST_ID` are set. See [BREVO_CONFIGURATION.md](./BREVO_CONFIGURATION.md) for provider setup.
 
 ## Existing single-tenant database
 

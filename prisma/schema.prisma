@@ -260,11 +260,17 @@ model EmailVerificationToken {
 }
 
 model NewsletterSubscriber {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  source       String   @default("landing_page")
-  syncedBrevo  Boolean  @default(false)
-  subscribedAt DateTime @default(now())
+  id             String           @id @default(cuid())
+  email          String           @unique
+  source         String           @default("landing_page")
+  status         NewsletterStatus @default(ACTIVE)
+  consentedAt    DateTime         @default(now())
+  unsubscribedAt DateTime?
+  syncedBrevo    Boolean          @default(false)
+  subscribedAt   DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([status])
 }
 
 enum EmailKind {
@@ -276,6 +282,11 @@ enum EmailStatus {
   SENT
   FAILED
   SKIPPED
+}
+
+enum NewsletterStatus {
+  ACTIVE
+  UNSUBSCRIBED
 }
 
 model EmailLog {

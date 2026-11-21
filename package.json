@@ -25,7 +25,9 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
 
-    "db:import-cloud": "node scripts/import-to-cloud.js"
+    "db:import-cloud": "node scripts/import-to-cloud.js",
+
+    "brevo:sync-newsletter": "node scripts/sync-brevo-newsletter.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

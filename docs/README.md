@@ -33,6 +33,7 @@ OpenMusabaqa is a multi-organization Quran competition platform. Organizations r
 | [flows.md](./flows.md) | End-to-end product flows for every role |
 | [api-reference.md](./api-reference.md) | Every HTTP endpoint, payload, and response |
 | [setup-and-seed.md](./setup-and-seed.md) | Environment, database setup, seeding, scripts, troubleshooting |
+| [BREVO_CONFIGURATION.md](./BREVO_CONFIGURATION.md) | Brevo API key, sender domain, SPF/DKIM/DMARC, newsletter list, unsubscribe |
 | [decisions.md](./decisions.md) | Architectural decisions and trade-offs |
 
 ## Quick start
@@ -66,5 +67,5 @@ Change both passwords after first sign-in.
 
 - **Near-real-time uses polling**, not WebSockets/SSE. Intervals are documented in [architecture.md](./architecture.md). The database is the single source of truth, so multiple app instances stay consistent.
 - **No external auth provider.** Sessions are HMAC-signed cookies backed by database checks; there are no new runtime dependencies for auth.
-- **No email delivery.** Registration reference codes are shown on screen; password resets are performed by admins.
+- **Email delivery** uses Brevo (transactional and newsletter), with Resend/SMTP alternatives and a console fallback for local development. See [BREVO_CONFIGURATION.md](./BREVO_CONFIGURATION.md).
 - **Legacy databases need an explicit upgrade.** The old single-tenant tables contain data that cannot be backfilled automatically into the multi-tenant schema. See [Existing single-tenant database](./setup-and-seed.md#existing-single-tenant-database) before running `db push` against an existing installation.
